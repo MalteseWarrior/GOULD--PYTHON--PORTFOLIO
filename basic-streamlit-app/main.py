@@ -54,7 +54,7 @@ st.header("Casino Games & Revenue Progression")
 casinodata = pd.read_csv("./data/UNLV_Casino_Data.csv")
 
 
-st.dataframe(casinodata)
+casinograph = st.dataframe(casinodata)
 
 # Filtering Options, user interactivity :D
 st.subheader("Select how you want to visualize the data!")
@@ -82,10 +82,11 @@ Done = st.button("Press when done selecting data!")
 # Display Data in Chart Form
 if Done:
     GameType = "GameType"
-    
+
     # Filter the data for the selected game types
     filtered_data1 = casinodata[casinodata[GameType] == gametype1]
     filtered_data2 = casinodata[casinodata[GameType] == gametype2]
+
 
     # Create a figure
     fig, ax = plt.subplots(figsize=(10, 6))
@@ -103,9 +104,13 @@ if Done:
     # Display in Streamlit
     st.pyplot(fig)
 
+    st.subheader(gametype1)
+    st.dataframe(filtered_data1[['Year', datatype]])
+    
+    st.subheader(gametype2)
+    st.dataframe(filtered_data1[['Year', datatype]])
     # Balloons for fun, I like this function
     st.balloons()
-
 
 st.text("References"
 "\nLibraries, U. U. (n.d.). Reports, Data Sets, & Research Guides. UNLV University Libraries Center for Gaming Research - All Reports. https://gaming.library.unlv.edu/all-reports.html")
