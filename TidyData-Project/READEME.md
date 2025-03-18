@@ -1,5 +1,8 @@
 # README - Tidying Data with Wolverine
 
+<img width="749" alt="image" src="https://github.com/user-attachments/assets/264c41be-69b6-4131-b213-e2756e488446" />
+
+
 ## What is Tidying Data with Wolverine?
 This application was developed to explore pandas as a way to clean dastardly data sets and to try to 
 develop a fun visualization alongside the process. The data set in question consists
