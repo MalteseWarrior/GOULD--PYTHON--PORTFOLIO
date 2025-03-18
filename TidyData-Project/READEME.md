@@ -37,4 +37,4 @@ Utilized: https://pandas.pydata.org/Pandas_Cheat_Sheet.pdf
 ### Connect and play!
 1. Connect your kernel to this newly created environment via your script editor
 2. Ensure you have downloaded all provided sprites, data, images, and the like!
-3. Play the game! It isn't perfect (first pygame :<), make sure to restart your kernel before professing to prevent issues.
+3. Play the game! It isn't perfect (first pygame :<), make sure to restart your kernel before progressing to prevent issues.
