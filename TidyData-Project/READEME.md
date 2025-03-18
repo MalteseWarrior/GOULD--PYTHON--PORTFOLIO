@@ -6,6 +6,10 @@ develop a fun visualization alongside the process. The data set in question cons
 of the particular characters in The X-men and their revenue in comic book sales
 throughout the 60s, 70s, 80s, and 90s.
 
+Data: https://github.com/EliCash82/mutantmoneyball/tree/main
+
+Utilized: https://pandas.pydata.org/Pandas_Cheat_Sheet.pdf
+
 ## Setup Instructions
 
 ### Create an Anaconda Environment
