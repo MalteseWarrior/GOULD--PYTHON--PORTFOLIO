@@ -31,7 +31,7 @@ from sentence_transformers.util import cos_sim
 
 ## ---------- Load Data From GoofyScraper.py ---------- ##
 # After some research to make this more efficient a function would be best to just load the data set
-csv_path = os.path.join(os.path.dirname(__file__), "spongebob_transcripts.csv")
+csv_path = os.path.join(os.path.dirname(__file__), "spongebob_transcripts.csv") # For local, change to just read_csv
 SpongeData = pd.read_csv(csv_path)
 
 
