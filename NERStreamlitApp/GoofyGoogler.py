@@ -30,7 +30,7 @@ from sentence_transformers.util import cos_sim
 
 ## ---------- Load Data From GoofyScraper.py ---------- ##
 # After some research to make this more efficient a function would be best to just load the data set
-SpongeData = pd.read_csv('/GOULD--PYTHON--PORTFOLIO/NERStreamlitApp/spongebob_transcripts.csv')
+SpongeData = pd.read_csv('spongebob_transcripts.csv')
 
 # Drop bad rows before any filtering logic
 SpongeData.dropna(subset=['ep', 'char', 'text'], inplace=True)
