@@ -219,20 +219,7 @@ def semantic_match(query, labels, embeddings, model, cutoff=0.3):
 # The app will have the option to use their text to search for similar or related text in the dataset
 # such as describing an event, a character, or a specific episode
 
-# Load Gifs - Make sure to have downloaded the UIgraphics from the GitHub repository and place them in the same directory as this file
-# Get the full directory path where this script is running
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-GRAPHICS_DIR = os.path.join(BASE_DIR, "UIGraphics")
-
-
-character_gifs = {
-    "SpongeBob": "https://raw.githubusercontent.com/MalteseWarrior/GOULD--PYTHON--PORTFOLIO/main/NERStreamlitApp/UIGraphics/spongebob.gif",
-    "Patrick": "https://raw.githubusercontent.com/MalteseWarrior/GOULD--PYTHON--PORTFOLIO/main/NERStreamlitApp/UIGraphics/patrick_dance.gif",
-    "Squidward": "https://raw.githubusercontent.com/MalteseWarrior/GOULD--PYTHON--PORTFOLIO/main/NERStreamlitApp/UIGraphics/squidward.gif",
-    "Mr. Krabs": "https://raw.githubusercontent.com/MalteseWarrior/GOULD--PYTHON--PORTFOLIO/main/NERStreamlitApp/UIGraphics/MrKrabsMoney.gif",
-    "Gary": "https://raw.githubusercontent.com/MalteseWarrior/GOULD--PYTHON--PORTFOLIO/main/NERStreamlitApp/UIGraphics/gary-the-snail.gif",
-    "Jellyfish": "https://raw.githubusercontent.com/MalteseWarrior/GOULD--PYTHON--PORTFOLIO/main/NERStreamlitApp/UIGraphics/jellyfish.gif"
-}
+# There were gifs originally, but streamlit community does not like images...
 
 
 
@@ -584,14 +571,6 @@ if st.button("🎣 Go Fish!"):
         render_entity_table(found_characters, found_episodes, found_dialogues, found_locations, found_events)
         
 
-
-        # Display gifs in main app - kind of big
-        for character in found_characters:
-            for name, gif_path in character_gifs.items():
-                if name.lower() in character.lower():
-                    st.image(gif_path, caption=name, use_container_width=True)
-                    break
-
         # Side bar for character summaries
         # ---------- SIDEBAR STYLING ---------- #
         st.markdown("""
@@ -627,11 +606,7 @@ if st.button("🎣 Go Fish!"):
                 font-size: 20px;
             }
 
-            .character-gif {
-                display: block;
-                margin: 0 auto 10px auto;
-                border-radius: 10px;
-            }
+            
             </style>
         """, unsafe_allow_html=True)
         # Sidebar title     
@@ -640,11 +615,7 @@ if st.button("🎣 Go Fish!"):
         for character in found_characters:
             summary = generate_synopsis(character, SpongeData)
             
-            gif_path = None
-            for name, path in character_gifs.items():
-                if name.lower() in character.lower():
-                    gif_path = path
-                    break
+            
 
             card_html = f'<div class="character-card"><h3>{summary["Character"]}</h3>'
         
