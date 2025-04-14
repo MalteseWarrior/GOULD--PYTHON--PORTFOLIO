@@ -74,4 +74,4 @@ df = df[
 
     
             
-df.to_csv('C:/Users/gingw/OneDrive/Documents/spongebob_transcripts.csv', index=False) # Change user for your own local directory
+df.to_csv('C:/Users/user/OneDrive/Documents/spongebob_transcripts.csv', index=False) # Change user for your own local directory
