@@ -14,10 +14,13 @@ than data.
 
 Thank you!
 
-## Proudest Addition:
+## Proudest Additions:
 Slashing Data with Wolverine: https://github.com/MalteseWarrior/GOULD--PYTHON--PORTFOLIO/tree/main/TidyData-Project
 This project was all about using pandas to restructure (tidy) messy data. I added a fun visualization tool with the help of Wolverine as the user goes through a quick game where they help him put the X-Men's data back together!
 This application in particular expanded my knowledge of how to implement the pandas library (learned a lot from having to display data frames) and of how to create games, visuals, and the like in a python environment (pygame).
+
+Goofy Googler: https://github.com/MalteseWarrior/GOULD--PYTHON--PORTFOLIO/tree/main/NERStreamlitApp
+This project is about Name Entity Recognition and some transformer/sentiment analysis practice with a nautical theme! Insert SpongeBob-related text to learn more about those Bikini Bottom Entities!. 
 
 # Other Additions:
 Basic Streamlit App - https://github.com/MalteseWarrior/GOULD--PYTHON--PORTFOLIO/tree/main/basic-streamlit-app
