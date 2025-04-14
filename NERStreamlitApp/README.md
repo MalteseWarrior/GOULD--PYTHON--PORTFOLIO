@@ -17,6 +17,10 @@ You can access this application on the Streamlit Community Page:
 <img width="1198" alt="image" src="https://github.com/user-attachments/assets/65db3e6e-1d4e-4c08-a6f0-fd4eeb639067" />
 
 
+<img width="1096" alt="image" src="https://github.com/user-attachments/assets/1233957d-83c4-4042-a7dd-59dc0cf5e0d0" />
+
+
+
 ### 🖥 Or Run It Locally
 
 1. Run your python environment prompt (mine is anaconda)
