@@ -4,7 +4,7 @@ This application was developed to learn more about Name Entity Recognition (NER)
 
 As an add-on to this project, there is an incorporation of transformers, sentiment analysis, and fuzzy association. This was in an attempt to learn more about vectorization and confidence-based generation.
 
-As a note, this application is specifically for locating SpongeBob-related words and statements, so please keep that in mind when inputting your text for analysis!
+As a note, this application is specifically for locating SpongeBob-related words and statements, so please keep that in mind when inputting your text for analysis! Also, the visuals look the best when not in dark-mode.
 
 ---
 
