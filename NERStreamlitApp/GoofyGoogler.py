@@ -19,6 +19,7 @@ from spacy.pipeline import EntityRuler
 import re
 from collections import Counter
 import random
+import os
 # Considering transformers, since I have a large data set I thought converting them into
 # vectors and through the cosine similarity I could compile it all to create a unique 
 # experience for every user - this is my first time working with transformers and a lot of this
@@ -30,7 +31,9 @@ from sentence_transformers.util import cos_sim
 
 ## ---------- Load Data From GoofyScraper.py ---------- ##
 # After some research to make this more efficient a function would be best to just load the data set
-SpongeData = pd.read_csv('spongebob_transcripts.csv')
+csv_path = os.path.join(os.path.dirname(__file__), "spongebob_transcripts.csv")
+SpongeData = pd.read_csv(csv_path)
+
 
 # Drop bad rows before any filtering logic
 SpongeData.dropna(subset=['ep', 'char', 'text'], inplace=True)
