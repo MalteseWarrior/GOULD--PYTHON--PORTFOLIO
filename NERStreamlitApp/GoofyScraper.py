@@ -63,6 +63,15 @@ for _, row in tqdm(ep_df.iterrows(), total=len(ep_df)):
 # Define the dataframe that will be manipulated for NER 
 df = pd.DataFrame(all_lines)
 print(df.head())
+
+# Remove wiki notes, credits, or narrator metadata
+df = df[
+    (~df['char'].str.contains("Note", case=False)) &
+    (~df['text'].str.contains("Episode·Transcript|viewers|Airdate|Line in", case=False)) &
+    (df['char'].str.len() > 1) & 
+    (df['text'].str.len() > 1)
+]
+
     
             
-df.to_csv('C:/Users/gingw/Documents/spongebob_transcripts.csv', index=False)
+df.to_csv('C:/Users/gingw/OneDrive/Documents/spongebob_transcripts.csv', index=False) # Change user for your own local directory
