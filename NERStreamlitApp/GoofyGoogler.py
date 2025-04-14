@@ -1,9 +1,9 @@
-## Welcome to the GoofyGoogler! This a SpongeBob Squarepants themed Name Entityy Regcognition (NER) application
+## Welcome to the GoofyGoogler! This a SpongeBob Squarepants themed Name Entity Regcognition (NER) application
 ## This application uses spaCy and Streamlit to extract named entities from text and display them in a fun and interactive way.
 ## This application is designed to be a fun and engaging way to learn about named entity recognition and the characters from SpongeBob Squarepants.
 
 ## Also, since I wanted to expand my knowledge of transformers and language models I have implemented
-## Transformers into this application, but the majority is manual input other than episode descriptiona and recognition
+## Transformers into this application, but the majority is manual input other than episode descriptions and recognition
 
 # To laucnh
 # cd NERStreamlitApp
@@ -30,7 +30,7 @@ from sentence_transformers.util import cos_sim
 
 
 ## ---------- Load Data From GoofyScraper.py ---------- ##
-# After some research to make this more efficient a function would be best to just load the data set
+# After some research to make this more efficient, a function would be best to just load the data set
 csv_path = os.path.join(os.path.dirname(__file__), "spongebob_transcripts.csv") # For local, change to just read_csv
 SpongeData = pd.read_csv(csv_path)
 
