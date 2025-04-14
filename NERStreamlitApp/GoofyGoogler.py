@@ -226,13 +226,14 @@ GRAPHICS_DIR = os.path.join(BASE_DIR, "UIGraphics")
 
 
 character_gifs = {
-    "SpongeBob": "https://raw.githubusercontent.com/YourGitHubUsername/GOULD--PYTHON--PORTFOLIO/main/NERStreamlitApp/UIGraphics/spongebob.gif",
-    "Patrick": "https://raw.githubusercontent.com/YourGitHubUsername/GOULD--PYTHON--PORTFOLIO/main/NERStreamlitApp/UIGraphics/patrick_dance.gif",
-    "Squidward": "https://raw.githubusercontent.com/YourGitHubUsername/GOULD--PYTHON--PORTFOLIO/main/NERStreamlitApp/UIGraphics/squidward.gif",
-    "Mr. Krabs": "https://raw.githubusercontent.com/YourGitHubUsername/GOULD--PYTHON--PORTFOLIO/main/NERStreamlitApp/UIGraphics/MrKrabsMoney.gif",
-    "Gary": "https://raw.githubusercontent.com/YourGitHubUsername/GOULD--PYTHON--PORTFOLIO/main/NERStreamlitApp/UIGraphics/gary-the-snail.gif",
-    "Jellyfish": "https://raw.githubusercontent.com/YourGitHubUsername/GOULD--PYTHON--PORTFOLIO/main/NERStreamlitApp/UIGraphics/jellyfish.gif"
+    "SpongeBob": "https://raw.githubusercontent.com/MalteseWarrior/GOULD--PYTHON--PORTFOLIO/main/NERStreamlitApp/UIGraphics/spongebob.gif",
+    "Patrick": "https://raw.githubusercontent.com/MalteseWarrior/GOULD--PYTHON--PORTFOLIO/main/NERStreamlitApp/UIGraphics/patrick_dance.gif",
+    "Squidward": "https://raw.githubusercontent.com/MalteseWarrior/GOULD--PYTHON--PORTFOLIO/main/NERStreamlitApp/UIGraphics/squidward.gif",
+    "Mr. Krabs": "https://raw.githubusercontent.com/MalteseWarrior/GOULD--PYTHON--PORTFOLIO/main/NERStreamlitApp/UIGraphics/MrKrabsMoney.gif",
+    "Gary": "https://raw.githubusercontent.com/MalteseWarrior/GOULD--PYTHON--PORTFOLIO/main/NERStreamlitApp/UIGraphics/gary-the-snail.gif",
+    "Jellyfish": "https://raw.githubusercontent.com/MalteseWarrior/GOULD--PYTHON--PORTFOLIO/main/NERStreamlitApp/UIGraphics/jellyfish.gif"
 }
+
 
 
 
