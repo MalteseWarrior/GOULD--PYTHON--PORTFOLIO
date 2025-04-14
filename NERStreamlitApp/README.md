@@ -12,7 +12,7 @@ As a note, this application is specifically for locating SpongeBob-related words
 
 ### ▶️ Access the App on Streamlit
 You can access this application on the Streamlit Community Page:  
-**(INSERT LINK)**
+**https://goofygooglr.streamlit.app/**
 
 ### 🖥 Or Run It Locally
 
