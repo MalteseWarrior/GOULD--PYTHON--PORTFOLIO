@@ -371,262 +371,277 @@ st.markdown("""
     <div class="subtitle">A SpongeBob SquarePants NER App full of nautical nonsense 🫧</div>
 """, unsafe_allow_html=True)
 
+tab1, tab2 = st.tabs(["🧠 GoofyGoogler App", "📘 Project README"])
+with tab1:
+    # ---------- Text Field ---------- #
+    user_input = st.text_area("🎤 Enter your Bikini Bottom text:", height=200, placeholder="Type Something Worthy of The Krabby Kronicle...")
 
 
-# ---------- Text Field ---------- #
-user_input = st.text_area("🎤 Enter your Bikini Bottom text:", height=200, placeholder="Type Something Worthy of The Krabby Kronicle...")
+        # ---------- Analysis will begin at the push of a button ---------- #
+    if st.button("🎣 Go Fish!"):
+        if user_input:
+            doc = nlp(user_input)
+            found_characters = set(ent.text for ent in doc.ents if ent.label_ == "CHARACTER")
+            found_episodes = set(ent.text for ent in doc.ents if ent.label_ == "EPISODE")
+            found_dialogues = set(ent.text for ent in doc.ents if ent.label_ == "DIALOGUE")
+            found_locations = set(ent.text for ent in doc.ents if ent.label_ == "LOCATION")
+            found_events = set(ent.text for ent in doc.ents if ent.label_ == "EVENT")
 
-# ---------- Analysis will begin at the push of a button ---------- #
-if st.button("🎣 Go Fish!"):
-    if user_input:
-        doc = nlp(user_input)
-        found_characters = set(ent.text for ent in doc.ents if ent.label_ == "CHARACTER")
-        found_episodes = set(ent.text for ent in doc.ents if ent.label_ == "EPISODE")
-        found_dialogues = set(ent.text for ent in doc.ents if ent.label_ == "DIALOGUE")
-        found_locations = set(ent.text for ent in doc.ents if ent.label_ == "LOCATION")
-        found_events = set(ent.text for ent in doc.ents if ent.label_ == "EVENT")
+            # Episode cards
+            def render_episode_cards(episode_names, df):
+                if not episode_names:
+                    return
 
-        # Episode cards
-        def render_episode_cards(episode_names, df):
-            if not episode_names:
-                return
+                st.markdown("""
+                    <style>
+                    .episode-gallery {
+                        display: flex;
+                        flex-wrap: wrap;
+                        gap: 20px;
+                        justify-content: center;
+                    }
 
+                    .episode-card {
+                        background: linear-gradient(to bottom right, #fff0fa, #e0f7ff);
+                        border: 4px dotted #ffb6c1;
+                        border-radius: 20px;
+                        width: 300px;
+                        padding: 1rem;
+                        box-shadow: 2px 4px 12px rgba(255, 105, 180, 0.2);
+                        font-family: 'Bubblegum Sans', cursive;
+                    }
+
+                    .episode-title {
+                        font-size: 24px;
+                        color: #ff69b4;
+                        margin-bottom: 0.5rem;
+                    }
+
+                    .episode-meta {
+                        font-size: 14px;
+                        color: #6c6cff;
+                        margin-bottom: 0.6rem;
+                    }
+
+                    .episode-line {
+                        font-style: italic;
+                        color: #333;
+                        font-size: 14px;
+                    }
+                    </style>
+                """, unsafe_allow_html=True)
+
+                st.markdown("## 📺 Possible Episodes")
+                st.markdown('<div class="episode-gallery">', unsafe_allow_html=True)
+
+                for ep in episode_names:
+                    ep_data = df[
+                        (df['ep'].str.strip().str.lower() == ep.strip().lower()) &
+                        (df['char'].str.strip().str.lower().isin([c.strip().lower() for c in found_characters]))]
+
+
+                    if ep_data.empty:
+                        continue
+
+                    dialogue_lines = ep_data[
+                        ep_data['text'].str.count(" ") > 3 &
+                        ~ep_data['text'].str.contains("Season|shorts|Movie|Theme parks|Patchy", case=False, na=False)
+                    ]
+
+                    sample_line = dialogue_lines['text'].sample(1).values[0] if not dialogue_lines.empty else ""
+
+                    sample_chars = ', '.join(ep_data['char'].unique()[:4])
+
+                    card_html = f"""
+                        <div class="episode-card">
+                            <div class="episode-title">📀 {ep}</div>
+                            <div class="episode-meta">👥 Featuring: {sample_chars}</div>
+                            <div class="episode-line">💬 "{sample_line}"</div>
+                        </div>
+                    """
+                    st.markdown(card_html, unsafe_allow_html=True)
+
+                st.markdown('</div>', unsafe_allow_html=True)
+
+                for ep in episode_names:
+                    with st.expander(f"🧾 Show all dialogue from '{ep}'"):
+                        ep_data = df[df['ep'].str.lower() == ep.lower()]
+                        for _, row in ep_data.iterrows():
+                            st.markdown(f"<b>{row['char']}:</b> {row['text']}", unsafe_allow_html=True)
+        
+
+            # Always try to enrich characters with fuzzy matching
+            for _ in range(3):
+                guessed_char, score = semantic_match(
+                    user_input,
+                    semantic_index["characters"],
+                    semantic_index["char_embeddings"],
+                    semantic_index["model"]
+                )
+                if guessed_char and guessed_char not in found_characters:
+                    found_characters.add(guessed_char)
+                    st.markdown(f"Sounds like you're talking about: **{guessed_char}** (confidence: {score:.2f})")
+
+            # Always try to enrich episodes too
+            guessed_ep, ep_score = semantic_match(
+                user_input,
+                semantic_index["episodes"],
+                semantic_index["ep_embeddings"],
+                semantic_index["model"]
+            )
+            if guessed_ep and guessed_ep not in found_episodes:
+                found_episodes.add(guessed_ep)
+                st.markdown(f"🎞️ Sounds like you're talking about: **{guessed_ep}** (confidence: {ep_score:.2f})")
+                
+
+
+
+            render_episode_cards(found_episodes, SpongeData)
+
+            # --------- CUTE ENTITY TABLE CSS --------- #
             st.markdown("""
                 <style>
-                .episode-gallery {
-                    display: flex;
-                    flex-wrap: wrap;
-                    gap: 20px;
-                    justify-content: center;
-                }
-
-                .episode-card {
-                    background: linear-gradient(to bottom right, #fff0fa, #e0f7ff);
-                    border: 4px dotted #ffb6c1;
-                    border-radius: 20px;
-                    width: 300px;
-                    padding: 1rem;
-                    box-shadow: 2px 4px 12px rgba(255, 105, 180, 0.2);
+                .entity-table {
+                    width: 100%;
+                    border-collapse: collapse;
                     font-family: 'Bubblegum Sans', cursive;
+                    margin: 20px 0;
+                    background-color: #f0f8ff;
+                    border-radius: 15px;
+                    overflow: hidden;
+                    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
                 }
 
-                .episode-title {
-                    font-size: 24px;
-                    color: #ff69b4;
-                    margin-bottom: 0.5rem;
+                .entity-table th {
+                    background-color: #ffb6c1;
+                    color: #003366;
+                    padding: 12px;
+                    text-align: left;
                 }
 
-                .episode-meta {
-                    font-size: 14px;
-                    color: #6c6cff;
-                    margin-bottom: 0.6rem;
+                .entity-table td {
+                    padding: 10px;
+                    border-top: 1px solid #e0e0e0;
+                    background-color: #e6f7ff;
+                    color: #003366;
                 }
 
-                .episode-line {
-                    font-style: italic;
-                    color: #333;
-                    font-size: 14px;
+                .entity-table tr:hover {
+                    background-color: #d0f0ff;
                 }
                 </style>
             """, unsafe_allow_html=True)
-
-            st.markdown("## 📺 Possible Episodes")
-            st.markdown('<div class="episode-gallery">', unsafe_allow_html=True)
-
-            for ep in episode_names:
-                ep_data = df[
-                    (df['ep'].str.strip().str.lower() == ep.strip().lower()) &
-                    (df['char'].str.strip().str.lower().isin([c.strip().lower() for c in found_characters]))]
-
-
-                if ep_data.empty:
-                    continue
-
-                dialogue_lines = ep_data[
-                    ep_data['text'].str.count(" ") > 3 &
-                    ~ep_data['text'].str.contains("Season|shorts|Movie|Theme parks|Patchy", case=False, na=False)
-                ]
-
-                sample_line = dialogue_lines['text'].sample(1).values[0] if not dialogue_lines.empty else ""
-
-                sample_chars = ', '.join(ep_data['char'].unique()[:4])
-
-                card_html = f"""
-                    <div class="episode-card">
-                        <div class="episode-title">📀 {ep}</div>
-                        <div class="episode-meta">👥 Featuring: {sample_chars}</div>
-                        <div class="episode-line">💬 "{sample_line}"</div>
-                    </div>
-                """
-                st.markdown(card_html, unsafe_allow_html=True)
-
-            st.markdown('</div>', unsafe_allow_html=True)
-
-            for ep in episode_names:
-                with st.expander(f"🧾 Show all dialogue from '{ep}'"):
-                    ep_data = df[df['ep'].str.lower() == ep.lower()]
-                    for _, row in ep_data.iterrows():
-                        st.markdown(f"<b>{row['char']}:</b> {row['text']}", unsafe_allow_html=True)
-    
-
-        # Always try to enrich characters with fuzzy matching
-        for _ in range(3):
-            guessed_char, score = semantic_match(
-                user_input,
-                semantic_index["characters"],
-                semantic_index["char_embeddings"],
-                semantic_index["model"]
-            )
-            if guessed_char and guessed_char not in found_characters:
-                found_characters.add(guessed_char)
-                st.markdown(f"Sounds like you're talking about: **{guessed_char}** (confidence: {score:.2f})")
-
-        # Always try to enrich episodes too
-        guessed_ep, ep_score = semantic_match(
-            user_input,
-            semantic_index["episodes"],
-            semantic_index["ep_embeddings"],
-            semantic_index["model"]
-        )
-        if guessed_ep and guessed_ep not in found_episodes:
-            found_episodes.add(guessed_ep)
-            st.markdown(f"🎞️ Sounds like you're talking about: **{guessed_ep}** (confidence: {ep_score:.2f})")
             
 
+            # --------- RENDER AS A PRETTY TABLE --------- #
+            def render_entity_table(characters, episodes, dialogues, locations, events):
+                entity_data = {
+                    "Entity Type": [],
+                    "Name": []
+                }
 
+                for char in sorted(characters):
+                    entity_data["Entity Type"].append("Character")
+                    entity_data["Name"].append(char)
 
-        render_episode_cards(found_episodes, SpongeData)
+                for ep in sorted(episodes):
+                    entity_data["Entity Type"].append("Episode")
+                    entity_data["Name"].append(ep)
 
-        # --------- CUTE ENTITY TABLE CSS --------- #
-        st.markdown("""
-            <style>
-            .entity-table {
-                width: 100%;
-                border-collapse: collapse;
-                font-family: 'Bubblegum Sans', cursive;
-                margin: 20px 0;
-                background-color: #f0f8ff;
-                border-radius: 15px;
-                overflow: hidden;
-                box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-            }
+                for line in sorted(dialogues):
+                    entity_data["Entity Type"].append("Dialogue")
+                    entity_data["Name"].append(line)
 
-            .entity-table th {
-                background-color: #ffb6c1;
-                color: #003366;
-                padding: 12px;
-                text-align: left;
-            }
+                for loc in sorted(locations):
+                    entity_data["Entity Type"].append("Location")
+                    entity_data["Name"].append(loc)
 
-            .entity-table td {
-                padding: 10px;
-                border-top: 1px solid #e0e0e0;
-                background-color: #e6f7ff;
-                color: #003366;
-            }
+                for event in sorted(events):
+                    entity_data["Entity Type"].append("Event")
+                    entity_data["Name"].append(event)
 
-            .entity-table tr:hover {
-                background-color: #d0f0ff;
-            }
-            </style>
-        """, unsafe_allow_html=True)
-        
+                    
 
-        # --------- RENDER AS A PRETTY TABLE --------- #
-        def render_entity_table(characters, episodes, dialogues, locations, events):
-            entity_data = {
-                "Entity Type": [],
-                "Name": []
-            }
+                entity_df = pd.DataFrame(entity_data)
 
-            for char in sorted(characters):
-                entity_data["Entity Type"].append("Character")
-                entity_data["Name"].append(char)
+                table_html = entity_df.to_html(classes="entity-table", index=False, escape=False)
+                st.markdown("### 🧽 Found the following entities:")
+                st.markdown(table_html, unsafe_allow_html=True)
 
-            for ep in sorted(episodes):
-                entity_data["Entity Type"].append("Episode")
-                entity_data["Name"].append(ep)
+            
+            render_entity_table(found_characters, found_episodes, found_dialogues, found_locations, found_events)
+            
 
-            for line in sorted(dialogues):
-                entity_data["Entity Type"].append("Dialogue")
-                entity_data["Name"].append(line)
+            # Side bar for character summaries
+            # ---------- SIDEBAR STYLING ---------- #
+            st.markdown("""
+                <style>
+                @import url('https://fonts.googleapis.com/css2?family=Bubblegum+Sans&display=swap');
 
-            for loc in sorted(locations):
-                entity_data["Entity Type"].append("Location")
-                entity_data["Name"].append(loc)
+                [data-testid="stSidebar"] {
+                    background-color: #d3eaff; /* ocean blue */
+                    padding: 1rem;
+                }
 
-            for event in sorted(events):
-                entity_data["Entity Type"].append("Event")
-                entity_data["Name"].append(event)
+                .sidebar-title {
+                    font-family: 'Bubblegum Sans', cursive;
+                    font-size: 28px;
+                    color: #ff8fc9; /* jellyfish pink */
+                    text-align: center;
+                    margin-bottom: 1rem;
+                }
+
+                .character-card {
+                    background-color: #fce4ff;
+                    border: 2px solid #ff8fc9;
+                    border-radius: 15px;
+                    padding: 1rem;
+                    margin-bottom: 1rem;
+                    font-family: 'Bubblegum Sans', cursive;
+                    color: #003366;
+                }
+
+                .character-card h3 {
+                    margin-top: 0;
+                    color: #ff69b4;
+                    font-size: 20px;
+                }
 
                 
+                </style>
+            """, unsafe_allow_html=True)
+            # Sidebar title     
+            st.sidebar.markdown('<h2 class="sidebar-title">🪝 What You Caught in the Net</h2>', unsafe_allow_html=True)
 
-            entity_df = pd.DataFrame(entity_data)
+            for character in found_characters:
+                summary = generate_synopsis(character, SpongeData)
+                
+                
 
-            table_html = entity_df.to_html(classes="entity-table", index=False, escape=False)
-            st.markdown("### 🧽 Found the following entities:")
-            st.markdown(table_html, unsafe_allow_html=True)
-
-        
-        render_entity_table(found_characters, found_episodes, found_dialogues, found_locations, found_events)
-        
-
-        # Side bar for character summaries
-        # ---------- SIDEBAR STYLING ---------- #
-        st.markdown("""
-            <style>
-            @import url('https://fonts.googleapis.com/css2?family=Bubblegum+Sans&display=swap');
-
-            [data-testid="stSidebar"] {
-                background-color: #d3eaff; /* ocean blue */
-                padding: 1rem;
-            }
-
-            .sidebar-title {
-                font-family: 'Bubblegum Sans', cursive;
-                font-size: 28px;
-                color: #ff8fc9; /* jellyfish pink */
-                text-align: center;
-                margin-bottom: 1rem;
-            }
-
-            .character-card {
-                background-color: #fce4ff;
-                border: 2px solid #ff8fc9;
-                border-radius: 15px;
-                padding: 1rem;
-                margin-bottom: 1rem;
-                font-family: 'Bubblegum Sans', cursive;
-                color: #003366;
-            }
-
-            .character-card h3 {
-                margin-top: 0;
-                color: #ff69b4;
-                font-size: 20px;
-            }
-
+                card_html = f'<div class="character-card"><h3>{summary["Character"]}</h3>'
             
-            </style>
-        """, unsafe_allow_html=True)
-        # Sidebar title     
-        st.sidebar.markdown('<h2 class="sidebar-title">🪝 What You Caught in the Net</h2>', unsafe_allow_html=True)
+                card_html += f"""
+                    <p>🧾 <b>Lines in Data:</b> {summary['Lines']}</p>
+                    <p>💬 <b>Sample:</b> {summary['Sample Quote']}</p>
+                <p>🧠 <b>Summary:</b> {summary['Summary']}</p>
+                </div>
+                """
+                st.sidebar.markdown(card_html, unsafe_allow_html=True)
+        
+        
 
-        for character in found_characters:
-            summary = generate_synopsis(character, SpongeData)
-            
-            
 
-            card_html = f'<div class="character-card"><h3>{summary["Character"]}</h3>'
-        
-            card_html += f"""
-                <p>🧾 <b>Lines in Data:</b> {summary['Lines']}</p>
-                <p>💬 <b>Sample:</b> {summary['Sample Quote']}</p>
-             <p>🧠 <b>Summary:</b> {summary['Summary']}</p>
-            </div>
-            """
-            st.sidebar.markdown(card_html, unsafe_allow_html=True)
-        
-        
+
+with tab2:
+    st.markdown("""
+    # 🧽 GoofyGoogler: README
+
+    This application was developed to learn more about Name Entity Recognition (NER) as part of spaCy’s language model. To do this, a large dataset was created by scraping the internet for SpongeBob SquarePants-related episodes, character names, and dialogue (This is found in the `GoofyScraper.py`). Once this data was collected, it was converted into a csv for easy loading. The actual NER section of the application is simple, as names, episodes, events, and locations are derived from the located transcripts.
+
+    As an add-on to this project, there is an incorporation of transformers, sentiment analysis, and fuzzy association. This was in an attempt to learn more about vectorization and confidence-based generation.
+
+    As a note, this application is specifically for locating SpongeBob-related words and statements, so please keep that in mind when inputting your text for analysis! Also, the visuals look the best when not in dark-mode.
+    So all you have to do is input a Spongebob related text and go fishing for Bikini Bottom's Entities!""")
+
 
 
