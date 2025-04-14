@@ -33,3 +33,4 @@ You can access this application on the Streamlit Community Page:
 
    ```bash
    streamlit run GoofyGoogler.py
+4. For local, you will also need to edit the initial load data command, it has been commented for reference
