@@ -14,6 +14,9 @@ As a note, this application is specifically for locating SpongeBob-related words
 You can access this application on the Streamlit Community Page:  
 **https://goofygooglr.streamlit.app/**
 
+<img width="1198" alt="image" src="https://github.com/user-attachments/assets/65db3e6e-1d4e-4c08-a6f0-fd4eeb639067" />
+
+
 ### 🖥 Or Run It Locally
 
 1. Run your python environment prompt (mine is anaconda)
