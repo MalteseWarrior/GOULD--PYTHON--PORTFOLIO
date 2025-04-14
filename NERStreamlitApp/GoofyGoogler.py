@@ -221,16 +221,20 @@ def semantic_match(query, labels, embeddings, model, cutoff=0.3):
 
 # Load Gifs - Make sure to have downloaded the UIgraphics from the GitHub repository and place them in the same directory as this file
 
-base_dir = os.path.dirname(__file__)
-graphics_path = os.path.join(base_dir, "UIGraphics")
+
+
+# Get the full directory path where this script is running
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+GRAPHICS_DIR = os.path.join(BASE_DIR, "UIGraphics")
+
 
 character_gifs = {
-    "SpongeBob": os.path.join(graphics_path, "spongebob.gif"),
-    "Patrick": os.path.join(graphics_path, "patrick_dance.gif"),
-    "Squidward": os.path.join(graphics_path, "squidward.gif"),
-    "Mr. Krabs": os.path.join(graphics_path, "MrKrabsMoney.gif"),
-    "Gary": os.path.join(graphics_path, "gary-the-snail.gif"),
-    "Jellyfish": os.path.join(graphics_path, "jellyfish.gif"),
+    "SpongeBob": os.path.join(GRAPHICS_DIR, "spongebob.gif"),
+    "Patrick": os.path.join(GRAPHICS_DIR, "patrick_dance.gif"),
+    "Squidward": os.path.join(GRAPHICS_DIR, "squidward.gif"),
+    "Mr. Krabs": os.path.join(GRAPHICS_DIR, "MrKrabsMoney.gif"),
+    "Gary": os.path.join(GRAPHICS_DIR, "gary-the-snail.gif"),
+    "Jellyfish": os.path.join(GRAPHICS_DIR, "jellyfish.gif"),
 }
 
 
