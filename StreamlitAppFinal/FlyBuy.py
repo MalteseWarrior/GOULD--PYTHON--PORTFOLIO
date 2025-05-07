@@ -18,6 +18,7 @@ import pandas as pd
 import numpy as np
 import pydeck as pdk
 import plotly.express as px
+import plotly.graph_objects as go
 import streamlit_plotly_events
 
 
@@ -56,7 +57,8 @@ FareCosts = pd.read_csv('AverageFare_Annual_2024.csv') # Average Fare Costs
 
 Fare_Delay = pd.read_csv('Fare_Delay_Merge.csv')
 
-
+# Data for calculator
+CalculatorData = pd.read_csv('Airport_Delay_Cost_Data.csv') # Data for Calculator
 
 
 
@@ -383,16 +385,125 @@ elif page == "United States Delay Analysis":
 # ------------------------------- This page will be a revenue and delay calculator -------------------------------
 # The user will be able to select an airport code, number of passengers, and etc to calculate the amount of money
 # that airport in the United States would make in a year (modeled after 2024 data)
-
+# the computations are based on the Airlines for America data and statistics report for 2023 (unfortunately not 2024 yet)
+# This report is available: https://www.airlines.org/dataset/u-s-passenger-carrier-delay-costs/#:~:text=In%202023%2C%20the%20average%20cost,percent%20to%20%2432.68%20per%20minute.
+# It allows for the user to see how much a delay costs the airline
 
 elif page == "Revenue & Delay Calculator":
     st.title("FlyBuy - 📊 Revenue & Delay Impact Calculator")
     st.info("Now for the 'buy' in FlyBuy!")
-    st.expander("Page Details:")
-    st.markdown("""
-        This page allows you to calculate the potential revenue and delay impact for a selected airport in the United States.""")
+    with st.expander("📘 Page Details"):
+        st.markdown("""
+        This page helps you estimate potential revenue losses from delays at U.S. airports.
+        
+        **How it works:**
+        - Select an airport.
+        - Enter the expected number of passengers (annually or for one flight).
+        - Based on historical data and industry averages, the app estimates the total cost impact of delays at that airport.
+
+        **Cost Reference:**
+        - Average cost per delayed flight: **$2,003.40**
+        - Average passengers per flight: **150**
+        - → Estimated cost per delayed passenger: **$13.36**
+        """) # Had chaptgpt write the definitions (faster)
                 
-    st.header("Choose Your Airport")
+    # for this section, refer back to Fare_Delay data to get the specifics for each airport
+    st.subheader("✈️ Choose Your Airport")
+    Fare_Delay["airport"] = Fare_Delay["airport"].str.strip().str.upper()
+    airport_codes = Fare_Delay["airport"].unique().tolist()
 
     # Create a selectbox for the user to choose an airport code
+    selected_airport = st.selectbox("Select an Airport Code", airport_codes, index=0)
+
+    st.subheader("👥 Passenger Amount")
+    # will use a number input for the user to enter the number of passengers
+    passenger_amount = st.number_input(
+         "Enter the expected number of passengers (annually or for one flight, e.g., 100 for a flight, 10000 for a year)",
+            min_value=1,
+            step=1,
+    )
     
+    # from Airlines for America, the average cost per delayed flight is $2,003.40
+    # Per passenger, the cost is $13.36
+    cost_per_delayed_flight = 2003.40
+    cost_per_delayed_passenger = 13.36
+
+    airport_data = Fare_Delay[Fare_Delay["airport"] == selected_airport]
+
+    if not airport_data.empty:
+         row = airport_data.iloc[0]
+         delay_rate = row.get("arr_del15", 0) / row.get("arr_flights", 1) * 100 # as a percentage
+         delayed_passengers = passenger_amount * (delay_rate / 100) # number of delayed passengers
+         not_delayed_passengers = passenger_amount - delayed_passengers # number of not delayed passengers
+         delaycost = delayed_passengers * cost_per_delayed_passenger # cost of delay
+         avg_fare = row.get("average_fare", 0) # average fare cost
+         gross_revenue = passenger_amount * avg_fare # gross revenue from passengers
+         net_revenue = gross_revenue - delaycost
+
+         st.markdown("---")
+         st.subheader("📉 Estimated Delay Cost Impact")
+
+         st.metric("Delay Rate (%)", f"{delay_rate:.2f}%")
+         st.metric("Estimated Delayed Passengers", f"{delayed_passengers:,.0f}")
+         st.metric("Total Estimated Cost of Delays", f"${delaycost:,.2f}")
+         st.metric("Gross Revenue (No Delays)", f"${gross_revenue:,.2f}")
+         st.metric("Adjusted Revenue (Post-Delay)", f"${net_revenue:,.2f}")
+         
+
+         st.caption(f"Based on ${cost_per_delayed_passenger} per delayed passenger & average fare of ${avg_fare:.2f} at {selected_airport}.")
+         
+    else:
+         st.warning("No data available for the selected airport.")
+    # ------------------------------------- This is the final portion of the code -------------------------------------
+    # On this final page I decided to add a sankey diagram to show how the delays effect the airline revenue
+    # I decided plotly would be the best option for this, more user friendly and interactive
+    # Highlight the chosen airport path for clear user chosen analysis compared to the rest of the airports
+
+    labels = [
+         f"{selected_airport} Passengers",
+         "Delayed Passengers",
+         "On Time Passengers",
+         "Gross Revenue",
+         "Delay Cost",
+         "Net Revenue",
+    ]
+    
+    # Need to create indices that align witht the labels created - according to plotly
+    sources = [0, 0, 1, 2, 3, 4]
+    targets = [1, 2, 3, 4, 5, 5]
+
+    highlight_color = "blue"  # Color for the selected airport path
+
+    values = [
+         not_delayed_passengers, # On Time Passengers
+         delayed_passengers, # Delayed Passengers
+         not_delayed_passengers * avg_fare, 
+         delaycost, # Delay Cost
+         gross_revenue, # Gross Revenue
+         delaycost, # 
+    ]
+    # Color labels for highlighting
+    node_colors = [highlight_color] + ["lightgray"] * (len(labels) - 1)
+    link_colors = [highlight_color] + ["lightgray"] * (len(sources) - 1)
+
+    # Create figure
+    fig = go.Figure(data=[go.Sankey(
+        arrangement="snap",
+        node=dict(
+            pad=15,
+            thickness=20,
+            line=dict(color="black", width=0.5),
+            label=labels,
+            color=node_colors,
+        ),
+        link=dict(
+            source=sources,
+            target=targets,
+            value=values,
+            color=link_colors,
+        ),
+    )])
+
+    st.subheader("Delay Impact Sankey Diagram")
+    st.plotly_chart(fig, use_container_width=True)
+
