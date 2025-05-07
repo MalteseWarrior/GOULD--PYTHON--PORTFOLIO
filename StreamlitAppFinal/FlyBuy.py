@@ -17,6 +17,9 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import pydeck as pdk
+import plotly.express as px
+import streamlit_plotly_events
+
 
 # These ones are for the OpenSky API
 import requests
@@ -30,14 +33,31 @@ import random
 
 # Access OpenSky API and Data Files
 URL = 'https://opensky-network.org/api/'
-JetFuelData = pd.read_csv('JetFuelData.csv')
-CountryCoords = pd.read_csv('country-coord.csv')
+
+CountryCoords = pd.read_csv('country-coord.csv') # Coordinates of Countries for Map
+
+# Sourced from Oepndatasoft
+AirportCoords = pd.read_csv('AirportCodeCoords.csv', sep=';') # Coordinates of Airports by Airport Code United States
+
+# Need to clean AirportCodes since formatting has the first column as:
+# Airport Code;Airport Name;City Name;Country Name;Country Code;Latitude;Longitude;World Area Code;City Name geo_name_id;Country Name geo_name_id;coordinates
+# Separation by colon should work, column 1 is Airport Code, Column 6 is Latitude, Column 7 is Longitude
 
 
-# Clean JetFuelData
-# Remove empty columns (0, NaN, --, etc.)
+# Sourced from Bureau of Transportation Statistics
+# Will Assist with United States Delay and Cost Analysis
+DelayCauses = pd.read_csv('Airline_Delay_Cause.csv') # Airline Delay Causes
 
-JetFuelData = JetFuelData.dropna(axis=1, how='all')
+# Departure Columns of import are Column 3 for Airport Code (Origin Airport) and Column 4 for Total Departures - Proportional map
+# Depature Columns of impport are column 8 for Total Passengers/Flight, Column 9 for Total Seats/Flight - For Fare Analysis
+
+AirPortDeparture = pd.read_csv('Departures_Airport.csv') # Departure Airports
+FareCosts = pd.read_csv('AverageFare_Annual_2024.csv') # Average Fare Costs
+
+Fare_Delay = pd.read_csv('Fare_Delay_Merge.csv')
+
+
+
 
 
 # Create Map For Data Associated with Flight
@@ -46,108 +66,333 @@ JetFuelData = JetFuelData.dropna(axis=1, how='all')
 # Second tab focuses on Jet Fuel Per Country
 
 # Create First Tab - Having Tuple Issue with st.tabs()
+# changes tab to st.radio() to avoid tuple issue
 
-st.title("FlyBuy - Flight Data Analysis")
-
-# Formatting Later
-
-
-st.info("Let the Time Fly By as you Wait!")
-# Fetch from OpenSky API
+page = st.radio("Select View", ["Live Flight Data", "United States Delay Analysis", "Revenue & Delay Calculator"], horizontal=True)
 
 
-try:
-    response = requests.get(URL + "states/all", timeout=10)
-    data = response.json()
-    timestamp = datetime.utcfromtimestamp(data['time']).strftime('%Y-%m-%d %H:%M:%S UTC') # Not sure why deprecated
-    st.success(f"Data fetched successfully at {timestamp}")
-
-    # Flight Specifics
-    Live_Data_Call = [
-        "icao24", "callsign", "origin_country", "time_position", "last_contact", "longitude",
-        "latitude", "baro_altitude", "on_ground", "velocity", "heading", "vertical_rate",
-        "sensors", "geo_altitude", "squawk", "spi", "position_source"
-    ]
 
 
-    df = pd.DataFrame(data['states'], columns=Live_Data_Call)
+if page == "Live Flight Data":
+    st.title("FlyBuy - Live Flight Data Analysis")
 
-    # Clean Live Data
-    df = df[df["on_ground"] == False] # Only show flights in the air
-    df["callsign"] = df["callsign"].str.strip() # Apparently some callsigns have whitespace at the end, so we need to remove it
-    df = df.dropna(subset=["longitude", "latitude", "callsign"]) # Remove rows with NaN values in longitude and latitude columns
+    # Formatting Later
 
 
-    # Provide Filter so User can parse through the live data
-    # Use st.selectbox to create a filter for the data
-    # Allows by country and by flight
-    country_filter = st.selectbox("Select a Country", options=["All"] + df["origin_country"].unique().tolist())
-    # flight_filter = st.selectbox("Select a Flight", options=["All"] + df["callsign"].unique().tolist()) - Was Not Accurate
+    st.info("Let the Time Fly By as you Wait!")
+    # Fetch from OpenSky API
+    try:
+        response = requests.get(URL + "states/all", timeout=10)
+        data = response.json()
+        timestamp = datetime.utcfromtimestamp(data['time']).strftime('%Y-%m-%d %H:%M:%S UTC') # Not sure why deprecated
+        st.success(f"Data fetched successfully at {timestamp}")
 
-    if country_filter != "All":
-        df = df[df["origin_country"] == country_filter]
-    # if flight_filter != "All":
-       # df = df[df["callsign"] == flight_filter]
-
-
-    # Create fun way to display amount of flights in the air
-    st.metric(label="Total Flights in the Air", value=len(df))
-
-    
-   
+        # Flight Specifics
+        Live_Data_Call = [
+            "icao24", "callsign", "origin_country", "time_position", "last_contact", "longitude",
+            "latitude", "baro_altitude", "on_ground", "velocity", "heading", "vertical_rate",
+            "sensors", "geo_altitude", "squawk", "spi", "position_source"
+        ]
 
 
-    # Add a map to show the flights in the air, originally with st.map()
-    # pydeck was much coolor looking and more advanced than st.map()
-    # Assign Colors to Origin Country
-    # Develop color directory for countries defined by the origin_country coulumn from OpenSky API
-    # Random each time
+        df = pd.DataFrame(data['states'], columns=Live_Data_Call)
 
-    # Generate random colors for each origin country
-    # Generate RGB colors for each origin country
-    unique_countries = df["origin_country"].unique()
-    country_colors = {
-        country: np.random.randint(0, 256, size=3).tolist() for country in unique_countries
-    }
-    df["color"] = df["origin_country"].map(country_colors)
+        # Clean Live Data
+        df = df[df["on_ground"] == False] # Only show flights in the air
+        df["callsign"] = df["callsign"].str.strip() # Apparently some callsigns have whitespace at the end, so we need to remove it
+        df = df.dropna(subset=["longitude", "latitude", "callsign"]) # Remove rows with NaN values in longitude and latitude columns
 
-    tooltip = {
-        "html": "<b>Callsign:</b> {callsign}<br><b>Origin Country:</b> {origin_country}",
-        "style": {"backgroundColor": "steelblue", "color": "white"}
-    }
 
-    # Use pydeck for a more advanced map visualization with colors
-    layer = pdk.Layer(
-        "ScatterplotLayer",
-        data=df,
-        get_position=["longitude", "latitude"],
-        get_fill_color="color",
-        get_radius=10000,
-        pickable=True,
-        auto_highlight=True,  # Enable hover highlighting
-    )
+        # Provide Filter so User can parse through the live data
+        # Use st.selectbox to create a filter for the data
+        # Allows by country and by flight
+        country_filter = st.selectbox("Select a Country", options=["All"] + df["origin_country"].unique().tolist())
+        # flight_filter = st.selectbox("Select a Flight", options=["All"] + df["callsign"].unique().tolist()) - Was Not Accurate
 
-    view_state = pdk.ViewState(
-        latitude=df["latitude"].mean(),
-        longitude=df["longitude"].mean(),
-        zoom=3,
-        pitch=0,
-    )
+        if country_filter != "All":
+            df = df[df["origin_country"] == country_filter]
+        # if flight_filter != "All":
+        # df = df[df["callsign"] == flight_filter]
 
-    # Add the tooltip to the pydeck chart
-    deck = pdk.Deck(
-        layers=[layer],
-        initial_view_state=view_state,
-        tooltip=tooltip
-    )
 
-    st.pydeck_chart(deck)
-
-except Exception as e:
-    st.error(f"Error fetching data: {e}")
-    logging.error(f"Error fetching data: {e}")
-
+        # Create fun way to display amount of flights in the air
+        st.metric(label="Total Flights in the Air", value=len(df))
 
         
 
+
+
+        # Add a map to show the flights in the air, originally with st.map()
+        # pydeck was much coolor looking and more advanced than st.map()
+        # Assign Colors to Origin Country
+        # Develop color directory for countries defined by the origin_country coulumn from OpenSky API
+        # Random each time
+
+        # Generate random colors for each origin country
+        # Generate RGB colors for each origin country
+        unique_countries = df["origin_country"].unique()
+        country_colors = {
+            country: np.random.randint(0, 256, size=3).tolist() for country in unique_countries
+        }
+        df["color"] = df["origin_country"].map(country_colors)
+
+        tooltip = {
+            "html": "<b>Callsign:</b> {callsign}<br><b>Origin Country:</b> {origin_country}",
+            "style": {"backgroundColor": "steelblue", "color": "white"}
+        }
+
+        # Use pydeck for a more advanced map visualization with colors
+        layer = pdk.Layer(
+            "ScatterplotLayer",
+            data=df,
+            get_position=["longitude", "latitude"],
+            get_fill_color="color",
+            get_radius=10000,
+            pickable=True,
+            auto_highlight=True,  # Enable hover highlighting
+        )
+
+        view_state = pdk.ViewState(
+            latitude=df["latitude"].mean(),
+            longitude=df["longitude"].mean(),
+            zoom=3,
+            pitch=0,
+        )
+
+
+        # Add the tooltip to the pydeck chart
+        deck = pdk.Deck(
+            layers=[layer],
+            initial_view_state=view_state,
+            tooltip=tooltip
+        )
+
+        st.pydeck_chart(deck)
+
+        st.bar_chart(
+            df["origin_country"].value_counts(),
+            use_container_width=True,
+            height=400,
+        )
+
+        
+
+    except Exception as e:
+        st.error(f"Error fetching data: {e}")
+        logging.error(f"Error fetching data: {e}")
+
+# From the OpenSky API, it is clear the United States has the most flights in the air
+# Cause for analysis into the most delays in the US
+
+# ----------------------------------- This page will be a map of the US with proportional circles -------------------------------
+
+
+# This section will be conduected on the second tab and will include a map of the US with proportional circles
+# Circles are proportional to the amount of flights per year, create over and side bar to show relavent delays
+
+
+
+elif page == "United States Delay Analysis":
+    try:
+        st.title("FlyBuy - United States Aiport Analysis")
+        st.info("Doesn't time just Fly By? " \
+        "Locating the U.S Airports with the Most Flights in 2024")
+
+        with st.expander("Page Details:"):
+                    st.markdown("""
+                    This page provides an analysis of the airports in the United States with the most flights in 2024.  \
+                    The analysis includes a map with proportional circles representing the number of flights,  \
+                    For the sidebar, you can select an airport to view its details, including the average fare cost and delay causes.\
+                    Here are some relevant definitions:     
+                                        
+                    **✈️ Flight Activity**
+                    - **Total Departures:** Number of flights that took off from the airport in 2024.
+                    - **Total Flights Tracked:** Number of arrival records tracked for the airport.
+                    - **Cancellations:** Flights that were scheduled but ultimately did not operate.
+                    - **Diversions:** Flights that did not land at their intended destination airport.
+
+                    **🕒 Delay Metrics**
+                    - **Delayed Flights (>15 min):** Flights that arrived 15+ minutes later than their scheduled arrival time.
+                    - **Carrier Delay:** Delays caused by the airline's own operations (e.g., crew or aircraft turnaround).
+                    - **Weather Delay:** Delays due to significant weather conditions preventing timely operations.
+                    - **NAS Delay:** Delays attributed to the National Aviation System, including air traffic control or crowded airports.
+                    - **Security Delay:** Delays caused by airport security procedures or breaches.
+                    - **Late Aircraft Delay:** Delays caused by a previous flight arriving late, delaying the next departure using the same aircraft.
+
+                    **💸 Fare Info**
+                    - **Average Fare (2024):** The average ticket price for flights departing from the airport, based on BTS data.
+                    """)
+
+        # Create dataframe for the plotting on pydeck
+        # Will be based on the Aiport code, airport code coordinates, and proportional circles based on the amount of flights
+        # This is done with the AirportCoords dataframe, AirportDeparture dataframe, column 1 is Airport Code, Column 6 is Latitude, Column 7 is Longitude
+        # from AirportCoords and want Column 3 for Airport Code (Origin Airport) and Column 4 for Total Departures from AirportDeparture
+        # Proved easier and quicker to do outiside of python
+        map_data = pd.read_csv('Merged_Airport_Flight_Data.csv')
+
+        # Create pydeck map with the merged data
+        map_data["radius"] = map_data["Total Departures"] / 1.5 # Adjust if needed
+
+        # Color randomizer from ChatGPT
+        # Assign unique random colors to each airport code
+        unique_airports = map_data["Origin Airport Code"].unique()
+        airport_colors = {
+            code: np.random.randint(0, 256, size=3).tolist() for code in unique_airports
+        }
+        map_data["color"] = map_data["Origin Airport Code"].map(airport_colors)
+
+        # Slider bar for user interaction
+        min_departures = int(map_data["Total Departures"].min())
+        max_departures = int(map_data["Total Departures"].max())
+        selected_departures = st.slider(
+            "Select Departure Range",
+            min_value=min_departures,
+            max_value=max_departures,
+            value=(min_departures, max_departures),
+            step=1000
+        )
+        # Filter data based on slider selection
+        filtered_data = map_data[
+            (map_data["Total Departures"] >= selected_departures[0]) &
+            (map_data["Total Departures"] <= selected_departures[1])
+        ]
+
+        # Include map in filtred data
+        if not filtered_data.empty:
+            filtered_data["radius"] = filtered_data["Total Departures"] / 1.5 # Adjust if needed
+            filtered_data["color"] = filtered_data["Origin Airport Code"].map(airport_colors)
+
+
+            # Create layer
+            prop_layer = pdk.Layer(
+                "ScatterplotLayer",
+                data=filtered_data,
+                get_position=["Longitude", "Latitude"],
+                get_fill_color="color",
+                get_radius="radius",
+                pickable=True,
+                auto_highlight=True,
+            )
+
+            # Create view state
+            view_state = pdk.ViewState(
+                latitude=map_data["Latitude"].mean(),
+                longitude=map_data["Longitude"].mean(),
+                zoom=2.5,
+                pitch=0,
+            )
+        
+            # Create tooltip - similar to the one above
+            tooltip = {
+                "html": "<b>Airport Code:</b> {Origin Airport Code}<br><b>Total Departures:</b> {Total Departures}",
+                "style": {"backgroundColor": "steelblue", "color": "white"}
+            }
+
+            # Display
+            st.pydeck_chart(pdk.Deck(
+                layers=[prop_layer],
+                initial_view_state=view_state,
+                tooltip=tooltip
+            ))
+
+            # Display barchart associated with the filtered data
+            # Figure out how to make colors on the filtered data associated with the airport code
+
+            st.subheader("Airports Within the Selected Departure Range")
+            st.bar_chart(
+                filtered_data.sort_values("Total Departures", ascending=False).set_index("Origin Airport Code")["Total Departures"],
+                use_container_width=True,
+                height=400,
+
+            )
+            # when the user clicks on a bubble, create sidebar with information about the airport including delay causes and likelihood of delay
+            # name of airport along with airport code, total departures, and average fare cost
+            # Delay information and full airport name found in the Airline_Delay_Cause.csv file, but average fare cose is in AverageFare_Annual_2024.csv
+            # Merge the dataframes to get the average fare cost for each airport code
+            # Dataframes were strange, so I had to merge them outside of python
+
+            # Bubbles do not have click events, so I will have a st.selectbox to select the airport code and then display
+            # a sidebar with information about the airport including delay causes
+            # Select an airport from the dropdown
+            # Move selectbox into the sidebar
+            st.sidebar.header("Aiport Details Explorer")
+            selected_code = st.sidebar.selectbox("Select an Airport Code", options=filtered_data["Origin Airport Code"].unique(), key="airport_code_selectbox")
+
+
+            # Standardize merge fields
+            map_data["Origin Airport Code"] = map_data["Origin Airport Code"].str.strip().str.upper()
+            Fare_Delay["airport"] = Fare_Delay["airport"].str.strip().str.upper()
+
+            # Merge to enrich data
+            airport_info = pd.merge(
+                map_data, 
+                Fare_Delay, 
+                left_on="Origin Airport Code", 
+                right_on="airport", 
+                how="left"
+            )
+
+            # Show sidebar info - I had chaptgpt write the definitions from the xls (faster)
+            if selected_code:
+                st.sidebar.subheader(f"🛫 Airport Code: {selected_code}")
+                selected_row = airport_info[airport_info["Origin Airport Code"] == selected_code]
+
+                if not selected_row.empty:
+                    row = selected_row.iloc[0]
+
+                    st.sidebar.markdown(f"**Airport Name:** {row.get('airport_name', 'N/A')}")
+                    st.sidebar.markdown("---")
+
+                    # ✈️ FLIGHT ACTIVITY SUMMARY
+                    st.sidebar.markdown("### ✈️ Flight Activity")
+                    st.sidebar.markdown(f"**Total Departures:** {int(row.get('Total Departures', 0))}")
+                    st.sidebar.markdown(f"**Total Flights Tracked:** {int(row.get('arr_flights', 0))}")
+                    st.sidebar.markdown(f"**Cancellations:** {int(row.get('cancelled', 0))}")
+                    st.sidebar.markdown(f"**Diversions:** {int(row.get('diverted', 0))}")
+                    st.sidebar.markdown("---")
+
+                    # 🕒 DELAY METRICS
+                    st.sidebar.markdown("### 🕒 Delay Metrics")
+                    st.sidebar.markdown(f"**Delayed Flights (>15 min):** {int(row.get('arr_del15', 0))}")
+                    st.sidebar.markdown(f"**Carrier Delay (min):** {row.get('carrier_ct', 0):.2f}")
+                    st.sidebar.markdown(f"**Weather Delay (min):** {row.get('weather_ct', 0):.2f}")
+                    st.sidebar.markdown(f"**NAS Delay (min):** {row.get('nas_ct', 0):.2f}")
+                    st.sidebar.markdown(f"**Security Delay (min):** {row.get('security_ct', 0):.2f}")
+                    st.sidebar.markdown(f"**Late Aircraft Delay (min):** {row.get('late_aircraft_ct', 0):.2f}")
+                    st.sidebar.markdown("---")
+
+                    # 💸 COST INFO (optional to keep)
+                    st.sidebar.markdown("### 💸 Fare Info")
+                    st.sidebar.markdown(f"**Average Fare (2024):** ${row.get('average_fare', 0):.2f}")
+
+                else:
+                    st.sidebar.warning("No detailed data available for this airport.")
+        else:
+            st.warning("No airports found within the selected departure range.")
+
+
+        
+        # Slider uesed to be here, decided to apply it to the entire map
+        
+        
+    except Exception as e:
+        st.error(f"Error fetching data: {e}")
+        logging.error(f"Error fetching data: {e}")
+
+
+# ------------------------------- This page will be a revenue and delay calculator -------------------------------
+# The user will be able to select an airport code, number of passengers, and etc to calculate the amount of money
+# that airport in the United States would make in a year (modeled after 2024 data)
+
+
+elif page == "Revenue & Delay Calculator":
+    st.title("FlyBuy - 📊 Revenue & Delay Impact Calculator")
+    st.info("Now for the 'buy' in FlyBuy!")
+    st.expander("Page Details:")
+    st.markdown("""
+        This page allows you to calculate the potential revenue and delay impact for a selected airport in the United States.""")
+                
+    st.header("Choose Your Airport")
+
+    # Create a selectbox for the user to choose an airport code
     
