@@ -19,28 +19,28 @@
     # Presents a pydeck map that displays live flight data by call sign and country of origin
     # Presents a live number of the amount of active departures in the world
     # The User may specify the country of origin for analysis
-    # Plotly barchart is provided for active comparison between countries
+    # Plotly bar chart is provided for active comparison between countries
 
 # Page 2:
     # Presents a proportional plot map using pydeck to visualize 2024 airport data in the United States
     # Emphasizes airports relative to their total flight departures annually
-    # User may use a slidebar to go between the minimum to maximum flight departures in the data to see which airports fit in that range
-    # Sidebar provides extra information that alludes to the third page as it gives information on the selected airport's delays and average fare
+    # User may use a slider to go between the minimum and maximum flight departures in the data to see which airports fit in that range
+    # Sidebar provides extra information that alludes to the third page,e as it gives information on the selected airport's delays and average fare
 
 # Page 3:
     # A user-friendly calculator that allows the user to see how much delays will cost a respective airport per delayed passenger
-    # The numbers were calculated with industry standards (its costs approximately $13 per delayed passenger)
-    # The amount of money lost is approximated using the delay likelihood at the selected aiport
-    # For a visualization of the relationship between total passengers, delayed passengers, gross revenue, and net revenue a Sankey diagram was constructed
-    # Sankey digram is an attempt to visualize the contribution of delays to the net revenue - interestingly they contribute little despite high fares
+    # The numbers were calculated with industry standards (it costs approximately $13 per delayed passenger)
+    # The amount of money lost is approximated using the delay likelihood at the selected airport
+    # For a visualization of the relationship between total passengers, delayed passengers, gross revenue, and net revenue, a Sankey diagram was constructed
+    # Sankey diagram is an attempt to visualize the contribution of delays to the net revenue - interestingly, they contribute little despite high fares
 
 ## ------- CLARIFICATION ------ ##
-# As a note for clarity, the majoirty of html and css code was made with the help of ChatGPT.
-# The fonts and layout was much quicker to create this way, I know the commands but it would have taken a lot longer to create the same layout and design.
-# This also goes for the formatiting of visual representations, I originally used the innate capabilities of streamlit but with formatting help from AI
-# I expanded beyond that and implemented some seperate visual libraries - provided an opportunity to learn plotly and pydeck
-# I used ChatGPT because I wanted the opportunity to have the time to learn beyond my already existing toolkit, its a tool to explore what I would not otherwise be exposed to /
-# Library wise in this 
+# As a note for clarity, the majority of HTML and CSS code was made with the help of ChatGPT.
+# The fonts and layout were much quicker to create this way. I know the commands, but creating the same layout and design would have taken a lot longer.
+# This also goes for the formatting of visual representations, I originally used the innate capabilities of streamli,t but with formatting help from AI
+# I expanded beyond that and implemented some separate visual libraries - provided an opportunity to learn plotly and pydeck
+# I used ChatGPT because I wanted the opportunity to have the time to learn beyond my already existing toolkit, it's a tool to explore what I would not otherwise be exposed to /
+# Library-wise in this 
 
 
 ##  ------- SPECIAL THANKS  ------- ##
@@ -50,9 +50,10 @@
     #  Pydeck (again): https://deckgl.readthedocs.io/en/latest/gallery/scatterplot_layer.html
     #  Plotly: https://plotly.com/python/sankey-diagram/
     #  Plotly (again): https://plotly.com/python/bar-charts/
-    #  ChatGPT: The app would not look this good without it (Which means I need to learn css at some point)
+    #  Streamlit Documentation (I love this website): https://docs.streamlit.io/
+    #  ChatGPT: The app would not look this good without it (Which means I need to learn CSS at some point)
 
-# And of course thank you to Professor Smiley who helped me learn so much more about python and data analysis
+# And of course, thank you to Professor Smiley, who helped me learn so much more about python and data analysis
 # I greatly appreciate the opportunities he provided me to expand my knowledge in this space, even when my ideas were too above and beyond at times
 
 
