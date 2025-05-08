@@ -4,8 +4,7 @@
 This is a streamlit Python application that allows you to search for flights in real time using the OpenSky API.  
 Along with the flight data, it also provides details about the airports in the United States as it is the origin country with the most  
 departure flights BY FAR. With this, the location and total flight departures relative to airport codes are displayed in both a bar chart and a proportional map.  
-With this, flight delay data was combined with average fare per airport to construct a quick and interactive analysis on how much revenue an airport generates with respect to  
-to 2024 Bureau of Transportation data.  
+With this, flight delay data was combined with average fare per airport to construct a quick and interactive analysis on how much revenue an airport generates with respect to 2024 Bureau of Transportation data.  
 With this, the user is given the opportunity to analyze the average fare cost of the flight, and the amount delays actually cost an airport relative to the fare price.  
 In other words, this app was created to recognize flight departure patterns and how much different delays impact the final revenue of an airport in the country with the largest departure flights in the world: the United States.  
 
