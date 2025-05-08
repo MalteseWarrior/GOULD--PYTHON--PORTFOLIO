@@ -65,6 +65,17 @@ I greatly appreciate the opportunities he provided me to expand my knowledge in 
 
 ---
 
+## Data Allocation
+
+The Data used in this project was sourced from a few different websites and organizations such as:
+- [Bureau of Transportation](https://www.bts.gov/)
+- [OpenDataSoft](https://www.opendatasoft.com/en/)
+- [OpenSky API](https://opensky-network.org/data/api)
+- [Airlines for America](https://www.airlines.org/dataset/u-s-passenger-carrier-delay-costs/)
+  
+
+---
+
 ## Running FlyBuy Locally - Library install and streamlit run
 
 Install all relevant files in the repository, including the main file, FlyBuy.py
