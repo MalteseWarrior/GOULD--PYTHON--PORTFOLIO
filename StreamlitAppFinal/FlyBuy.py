@@ -1,14 +1,82 @@
 ## Welcome to FlyBuy!
-# This is a streamlit python application that allows you to search for flights at real time using OpenSky API.
-# Along with the flight data, it also provides details about the flight vehicle, such as its model, manufacturer, and other details.
-# With this, the user is given the opportunity to analyze the average fare cost of the flight, and the average costs of actually flying the aircraft.
 
+## ------- PlEASE READ THE README ------- ##
+# Before proceeding please go back to the repository and read the read me...
+# If you did not, this is a brief summary:
+
+# This is a streamlit python application that allows you to search for flights at real time using OpenSky API.
+# Along with the flight data, it also provides details about the airports in the United States as it is the origin country with the most
+# departure flights BY FAR. With this, the location and total flight departures relative to airport codes are displayed in both a bar chart and a proportional map.
+# With this, flight delay data was combined with average fare per airport to construct a quick and interactive analysis on how much revenue an airport generates with respect
+# to 2024 Bureau of Transportation data. 
+# With this, the user is given the opportunity to analyze the average fare cost of the flight, and the amount delays actually cost an aiport relative to the fare price.
+# In other words, this app was created with the intention of recognizing flight departure patterns and how much different delays impact the final revenue of an airport in the
+# country with the largest departure flights in the world, The United States.
+
+
+## ------- User Inputs, Main Functions, and Outputs ------- ##
+# Page 1:
+    # Presents a pydeck map that displays live flight data by call sign and country of origin
+    # Presents a live number of the amount of active departures in the world
+    # The User may specify the country of origin for analysis
+    # Plotly barchart is provided for active comparison between countries
+
+# Page 2:
+    # Presents a proportional plot map using pydeck to visualize 2024 airport data in the United States
+    # Emphasizes airports relative to their total flight departures annually
+    # User may use a slidebar to go between the minimum to maximum flight departures in the data to see which airports fit in that range
+    # Sidebar provides extra information that alludes to the third page as it gives information on the selected airport's delays and average fare
+
+# Page 3:
+    # A user-friendly calculator that allows the user to see how much delays will cost a respective airport per delayed passenger
+    # The numbers were calculated with industry standards (its costs approximately $13 per delayed passenger)
+    # The amount of money lost is approximated using the delay likelihood at the selected aiport
+    # For a visualization of the relationship between total passengers, delayed passengers, gross revenue, and net revenue a Sankey diagram was constructed
+    # Sankey digram is an attempt to visualize the contribution of delays to the net revenue - interestingly they contribute little despite high fares
+
+## ------- CLARIFICATION ------ ##
 # As a note for clarity, the majoirty of html and css code was made with the help of ChatGPT.
 # The fonts and layout was much quicker to create this way, I know the commands but it would have taken a lot longer to create the same layout and design.
+# This also goes for the formatiting of visual representations, I originally used the innate capabilities of streamlit but with formatting help from AI
+# I expanded beyond that and implemented some seperate visual libraries - provided an opportunity to learn plotly and pydeck
+# I used ChatGPT because I wanted the opportunity to have the time to learn beyond my already existing toolkit, its a tool to explore what I would not otherwise be exposed to /
+# Library wise in this 
+
+
+##  ------- SPECIAL THANKS  ------- ##
+# Special thanks to these websites and organizations for their help in constructing this app
+    #  Geeksforgeeks: https://www.geeksforgeeks.org/
+    #  Pydeck: https://deckgl.readthedocs.io/en/latest/deck.html
+    #  Pydeck (again): https://deckgl.readthedocs.io/en/latest/gallery/scatterplot_layer.html
+    #  Plotly: https://plotly.com/python/sankey-diagram/
+    #  Plotly (again): https://plotly.com/python/bar-charts/
+    #  ChatGPT: The app would not look this good without it (Which means I need to learn css at some point)
+
+# And of course thank you to Professor Smiley who helped me learn so much more about python and data analysis
+# I greatly appreciate the opportunities he provided me to expand my knowledge in this space, even when my ideas were too above and beyond at times
+
+
 
 ## ------ WAIT! ------ ##
 # Before running the code, make sure you have the required libraries installed. Especially if you are using a virtual environment.
 # This is warning is for all you local users out there. If you are using the streamlit community cloud, you can ignore this warning.
+
+# This app is up on the streamlit community, visit the repository that took you to this code for that link
+# Otherwise, if you wish to launch this locally you will need to connect to an environment that includes all of the libraries down below
+# If in an anaconda environment (what I use) you can activate your environment in the anaconda prompt and then write:
+
+# pip install streamlit
+# pip install pandas
+# pip install numpy
+# pip install pydeck
+# pip install plotly
+# pip install streamlit-plotly-events
+# pip install requests
+
+# Once this is done, connect to your environment and use the cd command (if you are using a program like VS code) to open the file location
+# Once you are in the file location with FlyBuy.py and the associated data files, use the command:
+# streamlit run FlyBuy.py
+
 
 
 ## ------ LET'S GET STARTED! ------ ##
@@ -32,12 +100,132 @@ from collections import defaultdict
 from datetime import datetime
 import random
 
-# Access OpenSky API and Data Files
+## ---------- Markdown Formatting for Pages ------------ ##
+st.set_page_config(page_title="FlyBuy", layout="wide", page_icon="✈️") # SO MUCH BETTER THAN THE NORMAL FORMAT omg
+
+st.markdown("""
+<style>
+/* Base font and layout */
+html, body, [class*="css"] {
+    font-family: 'Segoe UI', sans-serif;
+    background-color: #f7faff;
+    color: #1a1a1a;
+}
+
+/* Central container */
+.block-container {
+    padding: 2rem 3rem;
+    max-width: 1400px;
+    margin: auto;
+    background-color: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+}
+
+/* Headings */
+h1, h2, h3 {
+    color: #003f5c;
+    font-weight: 700;
+}
+
+/* Sidebar */
+section[data-testid="stSidebar"] {
+    background-color: #e6f2ff;
+    border-right: 2px solid #99ccff;
+    padding: 1.5rem 1rem;
+}
+
+/* Metric Cards */
+div[data-testid="stMetric"] {
+    background-color: #f0f8ff;
+    padding: 16px;
+    border-radius: 10px;
+    margin-bottom: 12px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+}
+
+/* Input widgets */
+div[class*="stSelectbox"], div[class*="stNumberInput"], div[class*="stSlider"] {
+    background-color: #f4faff;
+    border-radius: 10px;
+    padding: 12px;
+    margin-top: 6px;
+    margin-bottom: 12px;
+}
+
+/* Expanders */
+.streamlit-expanderHeader {
+    font-size: 18px;
+    color: #005c99;
+    font-weight: bold;
+}
+
+/* Tooltip styling (deck.gl) */
+.deck-tooltip {
+    background-color: #005c99;
+    color: white;
+    padding: 8px;
+    border-radius: 6px;
+}
+
+/* Map container border */
+.custom-map-container {
+    border: 3px solid #99ccff;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    margin-top: 1rem;
+    margin-bottom: 2rem;
+}
+
+/* --------- SLIDER STYLING ----------- */
+div[data-testid="stSlider"] > div {
+    color: #003f5c; /* Number label text */
+}
+
+div[data-testid="stSlider"] input[type="range"]::-webkit-slider-thumb {
+    background-color: #003f5c; /* Thumb knob */
+    border: 2px solid #ffffff;
+}
+
+div[data-testid="stSlider"] input[type="range"]::-webkit-slider-runnable-track {
+    background: linear-gradient(to right, #a6c8ff, #005c99); /* Track gradient */
+    height: 6px;
+    border-radius: 6px;
+}
+
+div[data-testid="stSlider"] {
+    background-color: #f0f8ff;
+    padding: 16px;
+    border-radius: 10px;
+}
+
+/* Firefox slider support */
+div[data-testid="stSlider"] input[type="range"]::-moz-range-thumb {
+    background-color: #003f5c;
+    border: 2px solid #ffffff;
+}
+
+div[data-testid="stSlider"] input[type="range"]::-moz-range-track {
+    background: linear-gradient(to right, #a6c8ff, #005c99);
+    height: 6px;
+    border-radius: 6px;
+}
+</style>
+""", unsafe_allow_html=True)
+
+
+
+
+# Access OpenSky API and Data Files: https://opensky-network.org/data/api
+# Provided definitions and vector information that the live data contains
+# More API documentation (information on vectors): https://openskynetwork.github.io/opensky-api/
+
 URL = 'https://opensky-network.org/api/'
 
 CountryCoords = pd.read_csv('country-coord.csv') # Coordinates of Countries for Map
 
-# Sourced from Oepndatasoft
+# Sourced from Oepndatasoft: https://www.opendatasoft.com/en/
 AirportCoords = pd.read_csv('AirportCodeCoords.csv', sep=';') # Coordinates of Airports by Airport Code United States
 
 # Need to clean AirportCodes since formatting has the first column as:
@@ -45,8 +233,12 @@ AirportCoords = pd.read_csv('AirportCodeCoords.csv', sep=';') # Coordinates of A
 # Separation by colon should work, column 1 is Airport Code, Column 6 is Latitude, Column 7 is Longitude
 
 
-# Sourced from Bureau of Transportation Statistics
+# Sourced from Bureau of Transportation Statistics: https://www.bts.gov/
 # Will Assist with United States Delay and Cost Analysis
+
+# Many of these data files had extra, unnecessary data that could be removed manually once downloading the file
+# I provided links to the organizations the data was sourced from so users can see original data
+
 DelayCauses = pd.read_csv('Airline_Delay_Cause.csv') # Airline Delay Causes
 
 # Departure Columns of import are Column 3 for Airport Code (Origin Airport) and Column 4 for Total Departures - Proportional map
@@ -70,15 +262,14 @@ CalculatorData = pd.read_csv('Airport_Delay_Cost_Data.csv') # Data for Calculato
 # Create First Tab - Having Tuple Issue with st.tabs()
 # changes tab to st.radio() to avoid tuple issue
 
-page = st.radio("Select View", ["Live Flight Data", "United States Delay Analysis", "Revenue & Delay Calculator"], horizontal=True)
+page = st.radio("Select View", ["Live Flight Data", "United States Delay Analysis - 2024 Data", "Revenue & Delay Calculator - 2024 Data"], horizontal=True)
 
 
 
 
 if page == "Live Flight Data":
+    
     st.title("FlyBuy - Live Flight Data Analysis")
-
-    # Formatting Later
 
 
     st.info("Let the Time Fly By as you Wait!")
@@ -116,7 +307,7 @@ if page == "Live Flight Data":
         - 💵 The financial impact of delays on airlines and travelers
         """)
          
-    # Fetch from OpenSky API
+    # Fetch from OpenSky API - Done with the help of OpenSky pythong repository and some error fixes provided by AI (was only getting certain countries for a while)
     try:
         response = requests.get(URL + "states/all", timeout=10)
         data = response.json()
@@ -154,16 +345,15 @@ if page == "Live Flight Data":
         # Create fun way to display amount of flights in the air
         st.metric(label="Total Flights in the Air", value=len(df))
 
-        
-
-
-
+    
         # Add a map to show the flights in the air, originally with st.map()
         # pydeck was much coolor looking and more advanced than st.map()
         # Assign Colors to Origin Country
         # Develop color directory for countries defined by the origin_country coulumn from OpenSky API
         # Random each time
 
+
+        # May not be the best idea, but I thought it was fun, if user wants to change this create concrete list... I did not want to do that for every country
         # Generate random colors for each origin country
         # Generate RGB colors for each origin country
         unique_countries = df["origin_country"].unique()
@@ -200,16 +390,45 @@ if page == "Live Flight Data":
         deck = pdk.Deck(
             layers=[layer],
             initial_view_state=view_state,
-            tooltip=tooltip
+            tooltip=tooltip,
+            map_style="mapbox://styles/mapbox/light-v10",# Chatgpt helped me find this formatting
+            map_provider="mapbox",
+        )
+        
+        st.markdown('<div class="custom-map-container">', unsafe_allow_html=True)
+        st.pydeck_chart(deck, use_container_width=True, height=650)
+        st.markdown('</div>', unsafe_allow_html=True)
+
+        # Originally st.bar_chart, reformatted with plotly
+        bar_data = df["origin_country"].value_counts().reset_index()
+        bar_data.columns = ["Country", "Flights"]
+
+        custom_blues = [
+            "#c6dbef",  # muted blue-gray
+            "#9ecae1",  # mid-light blue
+            "#6baed6",  # mid blue
+            "#4292c6",  # rich blue
+            "#2171b5",  # bold blue
+            "#084594"   # dark navy
+        ]
+
+        fig_bar = px.bar(
+            bar_data,
+            x="Country",
+            y="Flights",
+            color="Country",
+            color_discrete_sequence=custom_blues,
+            title="Flights by Country"
         )
 
-        st.pydeck_chart(deck)
-
-        st.bar_chart(
-            df["origin_country"].value_counts(),
-            use_container_width=True,
-            height=400,
+        fig_bar.update_layout(
+            plot_bgcolor="white",
+            xaxis_title=None,
+            yaxis_title="Number of Flights",
+            title_font_size=20
         )
+
+        st.plotly_chart(fig_bar, use_container_width=True)
 
         
 
@@ -220,7 +439,7 @@ if page == "Live Flight Data":
 # From the OpenSky API, it is clear the United States has the most flights in the air
 # Cause for analysis into the most delays in the US
 
-# ----------------------------------- This page will be a map of the US with proportional circles -------------------------------
+# ----------------------------------- This page will be a map of the US with proportional circles ------------------------------- #
 
 
 # This section will be conduected on the second tab and will include a map of the US with proportional circles
@@ -228,13 +447,13 @@ if page == "Live Flight Data":
 
 
 
-elif page == "United States Delay Analysis":
+elif page == "United States Delay Analysis - 2024 Data":
     try:
         st.title("FlyBuy - United States Aiport Analysis")
         st.info("Doesn't time just Fly By? " \
         "Locating the U.S Airports with the Most Flights in 2024")
 
-        with st.expander("Page Details:"):
+        with st.expander("📘 Page Details:"):
                     st.markdown("""
                     This page provides an analysis of the airports in the United States with the most flights in 2024.  \
                     The analysis includes a map with proportional circles representing the number of flights,  \
@@ -325,22 +544,60 @@ elif page == "United States Delay Analysis":
             }
 
             # Display
+            st.markdown('<div class="custom-map-container">', unsafe_allow_html=True)
             st.pydeck_chart(pdk.Deck(
                 layers=[prop_layer],
                 initial_view_state=view_state,
-                tooltip=tooltip
-            ))
+                tooltip=tooltip,
+                map_style="mapbox://styles/mapbox/light-v10",
+                map_provider="mapbox"),
+                use_container_width=True, height=650
+
+            )
+            st.markdown('</div>', unsafe_allow_html=True)
 
             # Display barchart associated with the filtered data
             # Figure out how to make colors on the filtered data associated with the airport code
 
             st.subheader("Airports Within the Selected Departure Range")
-            st.bar_chart(
-                filtered_data.sort_values("Total Departures", ascending=False).set_index("Origin Airport Code")["Total Departures"],
-                use_container_width=True,
-                height=400,
-
+            # Originally st.bar_chart, reformatted with plotly
+            airport_bar_data = (
+                filtered_data.sort_values("Total Departures", ascending=False)
             )
+
+            custom_blues = [
+                "#c6dbef",  # muted blue-gray
+                "#9ecae1",  # mid-light blue
+                "#6baed6",  # mid blue
+                "#4292c6",  # rich blue
+                "#2171b5",  # bold blue
+                "#084594"   # dark navy
+            ]
+
+
+            # Create Plotly bar chart
+            fig_airport_bar = px.bar(
+                airport_bar_data,
+                x="Origin Airport Code",
+                y="Total Departures",
+                color="Origin Airport Code",
+                color_discrete_sequence=custom_blues,
+                title="✈️ Departures by U.S. Airport",
+            )
+
+            # Optional layout customization
+            fig_airport_bar.update_layout(
+                plot_bgcolor="white",
+                xaxis_title=None,
+                yaxis_title="Total Departures",
+                title_font_size=20,
+                xaxis_tickangle=-45,
+                uniformtext_minsize=8,
+                uniformtext_mode='hide',
+                margin=dict(t=50, b=100),
+            )
+
+            st.plotly_chart(fig_airport_bar, use_container_width=True)
             # when the user clicks on a bubble, create sidebar with information about the airport including delay causes and likelihood of delay
             # name of airport along with airport code, total departures, and average fare cost
             # Delay information and full airport name found in the Airline_Delay_Cause.csv file, but average fare cose is in AverageFare_Annual_2024.csv
@@ -350,7 +607,7 @@ elif page == "United States Delay Analysis":
             # Bubbles do not have click events, so I will have a st.selectbox to select the airport code and then display
             # a sidebar with information about the airport including delay causes
             # Select an airport from the dropdown
-            # Move selectbox into the sidebar
+            # Move selectbox into the sidebar otherwise page is WAYYY to cluttered
             st.sidebar.header("Aiport Details Explorer")
             selected_code = st.sidebar.selectbox("Select an Airport Code", options=filtered_data["Origin Airport Code"].unique(), key="airport_code_selectbox")
 
@@ -423,10 +680,10 @@ elif page == "United States Delay Analysis":
 # This report is available: https://www.airlines.org/dataset/u-s-passenger-carrier-delay-costs/#:~:text=In%202023%2C%20the%20average%20cost,percent%20to%20%2432.68%20per%20minute.
 # It allows for the user to see how much a delay costs the airline
 
-elif page == "Revenue & Delay Calculator":
+elif page == "Revenue & Delay Calculator - 2024 Data":
     st.title("FlyBuy - 📊 Revenue & Delay Impact Calculator")
     st.info("Now for the 'buy' in FlyBuy!")
-    with st.expander("📘 Page Details"):
+    with st.expander("📘 Page Details:"):
         st.markdown("""
         This page helps you estimate potential revenue losses from delays at U.S. airports.
         
@@ -547,7 +804,7 @@ elif page == "Revenue & Delay Calculator":
     sources += [label_indices[f"{selected_airport} Passengers"]] * 2
     targets += [label_indices["Delayed Passengers"], label_indices["On Time Passengers"]]
     values += [delayed_passengers, not_delayed_passengers]
-    colors += ["#FF5733", "#C0C0C0"]
+    colors += ["#c6dbef", "#9ecae1"]
 
     # Sankey diagrams work in flows so much construct the direction the flows go in
 
@@ -558,14 +815,14 @@ elif page == "Revenue & Delay Calculator":
             delay_passengers = share * delayed_passengers
             sources.append(label_indices["Delayed Passengers"])
             targets.append(label_indices[delay_type])
-            values.append(delay_passengers * amplifier) # THICK
-            colors.append("#FFA500")  
+            values.append(delay_passengers * amplifier) # THICK - Without this the mass amount of revenue makes the delays seem small, had to thicken lines for better representation
+            colors.append("#6baed6") 
 
             
             sources.append(label_indices[delay_type])
             targets.append(label_indices["Delay Cost"])
             values.append((delay_passengers * cost_per_delayed_passenger) * amplifier)
-            colors.append("#800000")
+            colors.append("#084594")
 
             # Note, had Chatgpt help with format, I originally had delay and passenger constribution have the same weight
             # This did provide the data storytelling I wanted, reformatting was simpler this way but I understand the flow
@@ -577,20 +834,23 @@ elif page == "Revenue & Delay Calculator":
     sources.append(label_indices["On Time Passengers"])
     targets.append(label_indices["Gross Revenue"])
     values.append(not_delayed_passengers * avg_fare)
-    colors.append("#4CAF50") # money green 
+    
 
     # Delayed -> Gross Revenue - Tickets are still sold and oftentimes nto refunded
     sources.append(label_indices["Delayed Passengers"])
     targets.append(label_indices["Gross Revenue"])
     values.append(delayed_passengers * avg_fare)
-    colors.append("#2E8B57") # darker money green
+    
 
     # Gross Revenue combined with the delay costs produces the net revenue
     sources += [label_indices["Gross Revenue"], label_indices["Delay Cost"]]
     targets += [label_indices["Net Revenue"], label_indices["Net Revenue"]]
     values += [gross_revenue, delaycost]
-    colors += ["#A0D995", "#B22222"] 
-
+    colors += [
+        "#4292c6",  # On-Time → Gross Revenue
+        "#6baed6",  # Delayed → Gross Revenue
+        "#2171b5", "#084594"  # Gross + Cost → Net
+    ]
                    
 
     ## Proof of concept before constructing a more complicated plot ##
@@ -620,10 +880,10 @@ elif page == "Revenue & Delay Calculator":
         node=dict(
             pad=20,
             thickness=24,
-            line=dict(color="black", width=0.5),
+            line=dict(color="white", width=0.5),
             label=labels,
-            color=["#003f5c"] + ["#2f4b7c"] * (len(labels) - 1),
-            hovertemplate="%{label}<extra></extra>"
+            color="#f0f8ff",
+            hovertemplate="%{label}<extra></extra>" # I have to say, love the hover capabilities
         ),
         link=dict(
             source=sources,
@@ -633,6 +893,13 @@ elif page == "Revenue & Delay Calculator":
             hovertemplate="%{value:,.0f} passengers / $%{value:,.0f} cost<extra></extra>"
         )
     )])
+
+    fig.update_layout(
+        font=dict(family="Segoe UI", size=14),
+        paper_bgcolor="white",
+        plot_bgcolor="white",
+        margin=dict(t=20, b=20, l=20, r=20)
+    )
 
     st.subheader("Delay Impact Sankey Diagram")
     st.plotly_chart(fig, use_container_width=True)
