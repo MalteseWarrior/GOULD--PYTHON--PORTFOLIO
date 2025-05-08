@@ -82,6 +82,40 @@ if page == "Live Flight Data":
 
 
     st.info("Let the Time Fly By as you Wait!")
+    # Add page and app details for user comprehension
+    # Provided summary to Chatgpt, returned to me a pleasanlty formatted version
+    with st.expander("📘 Page Details:"):
+        st.markdown("""
+        ### ✈️ **FlyBuy Application Overview**
+
+        **FlyBuy** is a real-time air traffic and airport analysis platform that draws from global and domestic aviation data sources. The application is built to:
+
+        - 🌍 Visualize **live departures around the world**
+        - 🛬 Highlight the **United States’ dominant role in global air traffic**
+        - 🏙️ Drill into **U.S. airport-level metrics**, especially delays
+        - 💸 Assess the **economic costs of those delays**
+
+        By integrating the OpenSky API with datasets from the Bureau of Transportation Statistics, FlyBuy creates a comprehensive, interactive lens on air travel activity and performance.
+
+        ---
+
+        ### 🌐 **Live Flight Data Page**
+
+        This page connects to the **OpenSky Network API** to display **live global flights** that are currently in the air.
+
+        **Key Features:**
+        - 📍 **Interactive flight map** showing airborne aircraft, color-coded by their origin country
+        - 🌐 **Country filter** to narrow down flights by country of origin
+        - 📊 **Live flight count** with metric updates
+        - 📈 **Bar chart** displaying flight volume per country
+
+        **Why It Matters:**
+        The U.S. has the **largest share of active airborne flights globally**. This foundational insight motivates deeper analysis into:
+        - 🛫 U.S. airports with the most departures
+        - ⏱️ Delay frequencies and causes
+        - 💵 The financial impact of delays on airlines and travelers
+        """)
+         
     # Fetch from OpenSky API
     try:
         response = requests.get(URL + "states/all", timeout=10)
@@ -454,54 +488,150 @@ elif page == "Revenue & Delay Calculator":
          
     else:
          st.warning("No data available for the selected airport.")
+
+
     # ------------------------------------- This is the final portion of the code -------------------------------------
     # On this final page I decided to add a sankey diagram to show how the delays effect the airline revenue
     # I decided plotly would be the best option for this, more user friendly and interactive
     # Highlight the chosen airport path for clear user chosen analysis compared to the rest of the airports
 
+    # Originally I focused on delays as a whole, the diagram was lack luster and the data already had different delay types
+    # Wonderful opportunity to combine their likelihoods into this sort of diagram
+
+    # Delay Seperation via row.get
+    carrier = row.get("carrier_ct", 0)
+    weather = row.get("weather_ct", 0)
+    security = row.get("security_ct", 0)
+    late = row.get("late_aircraft_ct", 0)
+    nas = row.get("nas_ct", 0)
+
+    delay_total = carrier + weather + security + late + nas
+    
+    # Original data makes it difficult to read the sankey data, will implement an amplifier for it to be easier to read
+    amplifier = 20
+
+    delay_section_map = {
+         "Carrier Delay": carrier,
+         "Weather Delay": weather,
+         "Security Delay": security,
+         "Late Aircraft Delay": late,
+         "NAS Delay": nas
+    }
+
     labels = [
          f"{selected_airport} Passengers",
-         "Delayed Passengers",
          "On Time Passengers",
+         "Delayed Passengers",
+         "Carrier Delay",
+         "Weather Delay",
+         "Security Delay",
+         "Late Aircraft Delay",
+         "NAS Delay",
          "Gross Revenue",
          "Delay Cost",
          "Net Revenue",
     ]
     
+    # Enumerate to create indices for labels
+    label_indices = {label: i for i, label in enumerate(labels)} # didnt know you could make a for loop like this, very fun
+
+
+    # Initialize Lists
+    sources = [] # The beginning of a flow
+    targets = [] # The end of a flow
+    values = [] # The values that determines the flow
+    colors = []
+
+   
+    # Originally labeled sources individually, inefficient
+    sources += [label_indices[f"{selected_airport} Passengers"]] * 2
+    targets += [label_indices["Delayed Passengers"], label_indices["On Time Passengers"]]
+    values += [delayed_passengers, not_delayed_passengers]
+    colors += ["#FF5733", "#C0C0C0"]
+
+    # Sankey diagrams work in flows so much construct the direction the flows go in
+
+    # Delayed Passenger -> Delay Causes
+    for delay_type, minutes in delay_section_map.items():
+        if delay_total > 0:
+            share = minutes / delay_total
+            delay_passengers = share * delayed_passengers
+            sources.append(label_indices["Delayed Passengers"])
+            targets.append(label_indices[delay_type])
+            values.append(delay_passengers * amplifier) # THICK
+            colors.append("#FFA500")  
+
+            
+            sources.append(label_indices[delay_type])
+            targets.append(label_indices["Delay Cost"])
+            values.append((delay_passengers * cost_per_delayed_passenger) * amplifier)
+            colors.append("#800000")
+
+            # Note, had Chatgpt help with format, I originally had delay and passenger constribution have the same weight
+            # This did provide the data storytelling I wanted, reformatting was simpler this way but I understand the flow
+            # Principle of the sankey diagram and the append process
+
+   
+
+    # On-time -> Gross revenue
+    sources.append(label_indices["On Time Passengers"])
+    targets.append(label_indices["Gross Revenue"])
+    values.append(not_delayed_passengers * avg_fare)
+    colors.append("#4CAF50") # money green 
+
+    # Delayed -> Gross Revenue - Tickets are still sold and oftentimes nto refunded
+    sources.append(label_indices["Delayed Passengers"])
+    targets.append(label_indices["Gross Revenue"])
+    values.append(delayed_passengers * avg_fare)
+    colors.append("#2E8B57") # darker money green
+
+    # Gross Revenue combined with the delay costs produces the net revenue
+    sources += [label_indices["Gross Revenue"], label_indices["Delay Cost"]]
+    targets += [label_indices["Net Revenue"], label_indices["Net Revenue"]]
+    values += [gross_revenue, delaycost]
+    colors += ["#A0D995", "#B22222"] 
+
+                   
+
+    ## Proof of concept before constructing a more complicated plot ##
+    ## May ignore other than for simple reference ##
+
     # Need to create indices that align witht the labels created - according to plotly
-    sources = [0, 0, 1, 2, 3, 4]
-    targets = [1, 2, 3, 4, 5, 5]
+    # sources = [0, 0, 1, 2, 3, 4]
+    # targets = [1, 2, 3, 4, 5, 5]
 
-    highlight_color = "blue"  # Color for the selected airport path
+    # highlight_color = "blue"  # Color for the selected airport path
 
-    values = [
-         not_delayed_passengers, # On Time Passengers
-         delayed_passengers, # Delayed Passengers
-         not_delayed_passengers * avg_fare, 
-         delaycost, # Delay Cost
-         gross_revenue, # Gross Revenue
-         delaycost, # 
-    ]
+    # values = [
+         # not_delayed_passengers, # On Time Passengers
+         # delayed_passengers, # Delayed Passengers
+         # not_delayed_passengers * avg_fare, 
+         # delaycost, # Delay Cos
+         # gross_revenue, # Gross Revenue
+         # delaycost, # 
+    #]
     # Color labels for highlighting
-    node_colors = [highlight_color] + ["lightgray"] * (len(labels) - 1)
-    link_colors = [highlight_color] + ["lightgray"] * (len(sources) - 1)
+    #node_colors = [highlight_color] + ["darkblue"] * (len(labels) - 1)
+    #link_colors = [highlight_color] + ["lightgray"] * (len(sources) - 1)
 
     # Create figure
     fig = go.Figure(data=[go.Sankey(
         arrangement="snap",
         node=dict(
-            pad=15,
-            thickness=20,
+            pad=20,
+            thickness=24,
             line=dict(color="black", width=0.5),
             label=labels,
-            color=node_colors,
+            color=["#003f5c"] + ["#2f4b7c"] * (len(labels) - 1),
+            hovertemplate="%{label}<extra></extra>"
         ),
         link=dict(
             source=sources,
             target=targets,
             value=values,
-            color=link_colors,
-        ),
+            color=colors,
+            hovertemplate="%{value:,.0f} passengers / $%{value:,.0f} cost<extra></extra>"
+        )
     )])
 
     st.subheader("Delay Impact Sankey Diagram")
