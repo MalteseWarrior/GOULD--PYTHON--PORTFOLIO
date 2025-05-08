@@ -1,7 +1,3 @@
-# README - Tidying Data with Wolverine
-
-<img width="749" alt="image" src="https://github.com/user-attachments/assets/264c41be-69b6-4131-b213-e2756e488446" />
-
 
 ## What is Tidying Data with Wolverine?
 This application was developed to explore pandas as a way to clean dastardly data sets and to try to 
@@ -9,7 +5,14 @@ develop a fun visualization alongside the process. The data set in question cons
 of the particular characters in The X-men and their revenue in comic book sales
 throughout the 60s, 70s, 80s, and 90s.
 
-[MutantMoneyBallData](https://github.com/EliCash82/mutantmoneyball/tree/main)
+
+<img width="749" alt="image" src="https://github.com/user-attachments/assets/264c41be-69b6-4131-b213-e2756e488446" />
+
+
+
+
+## Data
+- [MutantMoneyBallData](https://github.com/EliCash82/mutantmoneyball/tree/main)
 
 ## Helpful Websites/Organizations
 - [Pandas Cheat Sheet](https://pandas.pydata.org/Pandas_Cheat_Sheet.pdf)
