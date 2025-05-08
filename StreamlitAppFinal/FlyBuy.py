@@ -90,6 +90,7 @@ import pydeck as pdk
 import plotly.express as px
 import plotly.graph_objects as go
 import streamlit_plotly_events
+import os
 
 
 # These ones are for the OpenSky API
@@ -252,7 +253,13 @@ URL = 'https://opensky-network.org/api/'
 # AirPortDeparture = pd.read_csv('FlyBuyData/Departures_Airport.csv') # Departure Airports
 # FareCosts = pd.read_csv('FlyBuyData/AverageFare_Annual_2024.csv') # Average Fare Costs
 
-Fare_Delay = pd.read_csv('FlyBuyData/Fare_Delay_Merge.csv')
+csv_path = os.path.join(os.path.dirname(__file__), 'FlyBuyData/Fare_Delay_Merge.csv') # For local, change to just read_csv
+
+Fare_Delay = pd.read_csv(csv_path)
+
+csv_path2 = os.path.join(os.path.dirname(__file__), 'FlyBuyData/Merged_Airport_Flight_Data.csv')
+
+map_data = pd.read_csv(csv_path2)
 
 # Data for calculator
 # CalculatorData = pd.read_csv('FlyBuyData/Airport_Delay_Cost_Data.csv') # Data for Calculator
@@ -490,7 +497,7 @@ elif page == "United States Delay Analysis - 2024 Data":
         # This is done with the AirportCoords dataframe, AirportDeparture dataframe, column 1 is Airport Code, Column 6 is Latitude, Column 7 is Longitude
         # from AirportCoords and want Column 3 for Airport Code (Origin Airport) and Column 4 for Total Departures from AirportDeparture
         # Proved easier and quicker to do outiside of python
-        map_data = pd.read_csv('FlyBuyData/Merged_Airport_Flight_Data.csv')
+        
 
         # Create pydeck map with the merged data
         map_data["radius"] = map_data["Total Departures"] / 1.5 # Adjust if needed
