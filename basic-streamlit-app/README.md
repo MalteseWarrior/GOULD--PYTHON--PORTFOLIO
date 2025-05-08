@@ -9,6 +9,10 @@ will appear with a little surprise!
 
 
 
+
+## Data
+- [UNLV Gaming Research](https://gaming.library.unlv.edu/all-reports.html)
+
 ## Relevant Definitions:
 Units: Total number of sports betting locations active during the calendar year
 Win Amount: Cash-in minus payoffs; the amount the sports books kept for the calendar year
