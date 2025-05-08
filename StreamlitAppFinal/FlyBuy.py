@@ -225,7 +225,7 @@ div[data-testid="stSlider"] input[type="range"]::-moz-range-track {
 
 URL = 'https://opensky-network.org/api/'
 
-CountryCoords = pd.read_csv('FlyBuyData/country-coord.csv') # Coordinates of Countries for Map
+
 
 # Sourced from Oepndatasoft: https://www.opendatasoft.com/en/
 AirportCoords = pd.read_csv('FlyBuyData/AirportCodeCoords.csv', sep=';') # Coordinates of Airports by Airport Code United States
