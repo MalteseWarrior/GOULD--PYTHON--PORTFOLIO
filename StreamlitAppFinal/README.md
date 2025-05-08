@@ -13,8 +13,8 @@ country with the largest departure flights in the world, The United States.
 ---
 
 ## How to Use
-# You can access this application on the Streamlit Community Page:
-[FlyBuy](ADD LINK)
+# You can access this application on the Streamlit Community Page (PLEASE HAVE IT IN LIGHT MODE):
+[FlyBuy](https://flybuy.streamlit.app/)
 
 Or run it locally, instructions below
 
