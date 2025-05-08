@@ -1,5 +1,6 @@
 
-## What is Tidying Data with Wolverine?
+
+## What is Tidying Data with Wolverine?![wolverine (3)](https://github.com/user-attachments/assets/11203efb-1d88-42fe-ab6f-b9f4dcca9cb5)
 This application was developed to explore pandas as a way to clean dastardly data sets and to try to 
 develop a fun visualization alongside the process. The data set in question consists
 of the particular characters in The X-men and their revenue in comic book sales
