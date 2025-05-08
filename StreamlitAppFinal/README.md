@@ -21,7 +21,7 @@ Or run it locally, instructions below
 ### Page 1:
 - Presents a pydeck map that displays live flight data by call sign and country of origin  
 - Presents a live number of the number of active departures in the world  
-- The User may specify the country of origin for analysis  
+- The User may specify the country of origin for analysis - Sometimes you need to do it twice... I dont know why  
 - A Plotly bar chart is provided for active comparison between countries
 
   ![image](https://github.com/user-attachments/assets/0bbd8b5e-942c-40a0-88f8-c95e1f046eff)
