@@ -19,28 +19,28 @@
     # Presents a pydeck map that displays live flight data by call sign and country of origin
     # Presents a live number of the amount of active departures in the world
     # The User may specify the country of origin for analysis
-    # Plotly bar chart is provided for active comparison between countries
+    # Plotly barchart is provided for active comparison between countries
 
 # Page 2:
     # Presents a proportional plot map using pydeck to visualize 2024 airport data in the United States
     # Emphasizes airports relative to their total flight departures annually
-    # User may use a slider to go between the minimum and maximum flight departures in the data to see which airports fit in that range
-    # Sidebar provides extra information that alludes to the third page,e as it gives information on the selected airport's delays and average fare
+    # User may use a slidebar to go between the minimum to maximum flight departures in the data to see which airports fit in that range
+    # Sidebar provides extra information that alludes to the third page as it gives information on the selected airport's delays and average fare
 
 # Page 3:
     # A user-friendly calculator that allows the user to see how much delays will cost a respective airport per delayed passenger
-    # The numbers were calculated with industry standards (it costs approximately $13 per delayed passenger)
-    # The amount of money lost is approximated using the delay likelihood at the selected airport
-    # For a visualization of the relationship between total passengers, delayed passengers, gross revenue, and net revenue, a Sankey diagram was constructed
-    # Sankey diagram is an attempt to visualize the contribution of delays to the net revenue - interestingly, they contribute little despite high fares
+    # The numbers were calculated with industry standards (its costs approximately $13 per delayed passenger)
+    # The amount of money lost is approximated using the delay likelihood at the selected aiport
+    # For a visualization of the relationship between total passengers, delayed passengers, gross revenue, and net revenue a Sankey diagram was constructed
+    # Sankey digram is an attempt to visualize the contribution of delays to the net revenue - interestingly they contribute little despite high fares
 
 ## ------- CLARIFICATION ------ ##
-# As a note for clarity, the majority of HTML and CSS code was made with the help of ChatGPT.
-# The fonts and layout were much quicker to create this way. I know the commands, but creating the same layout and design would have taken a lot longer.
-# This also goes for the formatting of visual representations, I originally used the innate capabilities of streamli,t but with formatting help from AI
-# I expanded beyond that and implemented some separate visual libraries - provided an opportunity to learn plotly and pydeck
-# I used ChatGPT because I wanted the opportunity to have the time to learn beyond my already existing toolkit, it's a tool to explore what I would not otherwise be exposed to /
-# Library-wise in this 
+# As a note for clarity, the majoirty of html and css code was made with the help of ChatGPT.
+# The fonts and layout was much quicker to create this way, I know the commands but it would have taken a lot longer to create the same layout and design.
+# This also goes for the formatiting of visual representations, I originally used the innate capabilities of streamlit but with formatting help from AI
+# I expanded beyond that and implemented some seperate visual libraries - provided an opportunity to learn plotly and pydeck
+# I used ChatGPT because I wanted the opportunity to have the time to learn beyond my already existing toolkit, its a tool to explore what I would not otherwise be exposed to /
+# Library wise in this 
 
 
 ##  ------- SPECIAL THANKS  ------- ##
@@ -50,10 +50,11 @@
     #  Pydeck (again): https://deckgl.readthedocs.io/en/latest/gallery/scatterplot_layer.html
     #  Plotly: https://plotly.com/python/sankey-diagram/
     #  Plotly (again): https://plotly.com/python/bar-charts/
-    #  Streamlit Documentation (I love this website): https://docs.streamlit.io/
-    #  ChatGPT: The app would not look this good without it (Which means I need to learn CSS at some point)
+    #  ChatGPT: The app would not look this good without it (Which means I need to learn css at some point)
 
-# And of course, thank you to Professor Smiley, who helped me learn so much more about python and data analysis
+
+
+# And of course thank you to Professor Smiley who helped me learn so much more about python and data analysis
 # I greatly appreciate the opportunities he provided me to expand my knowledge in this space, even when my ideas were too above and beyond at times
 
 
@@ -224,10 +225,10 @@ div[data-testid="stSlider"] input[type="range"]::-moz-range-track {
 
 URL = 'https://opensky-network.org/api/'
 
-CountryCoords = pd.read_csv('country-coord.csv') # Coordinates of Countries for Map
+CountryCoords = pd.read_csv('FlyBuyData/country-coord.csv') # Coordinates of Countries for Map
 
 # Sourced from Oepndatasoft: https://www.opendatasoft.com/en/
-AirportCoords = pd.read_csv('AirportCodeCoords.csv', sep=';') # Coordinates of Airports by Airport Code United States
+AirportCoords = pd.read_csv('FlyBuyData/AirportCodeCoords.csv', sep=';') # Coordinates of Airports by Airport Code United States
 
 # Need to clean AirportCodes since formatting has the first column as:
 # Airport Code;Airport Name;City Name;Country Name;Country Code;Latitude;Longitude;World Area Code;City Name geo_name_id;Country Name geo_name_id;coordinates
@@ -240,18 +241,18 @@ AirportCoords = pd.read_csv('AirportCodeCoords.csv', sep=';') # Coordinates of A
 # Many of these data files had extra, unnecessary data that could be removed manually once downloading the file
 # I provided links to the organizations the data was sourced from so users can see original data
 
-DelayCauses = pd.read_csv('Airline_Delay_Cause.csv') # Airline Delay Causes
+DelayCauses = pd.read_csv('FlyBuyData/Airline_Delay_Cause.csv') # Airline Delay Causes
 
 # Departure Columns of import are Column 3 for Airport Code (Origin Airport) and Column 4 for Total Departures - Proportional map
 # Depature Columns of impport are column 8 for Total Passengers/Flight, Column 9 for Total Seats/Flight - For Fare Analysis
 
-AirPortDeparture = pd.read_csv('Departures_Airport.csv') # Departure Airports
-FareCosts = pd.read_csv('AverageFare_Annual_2024.csv') # Average Fare Costs
+AirPortDeparture = pd.read_csv('FlyBuyData/Departures_Airport.csv') # Departure Airports
+FareCosts = pd.read_csv('FlyBuyData/AverageFare_Annual_2024.csv') # Average Fare Costs
 
-Fare_Delay = pd.read_csv('Fare_Delay_Merge.csv')
+Fare_Delay = pd.read_csv('FlyBuyData/Fare_Delay_Merge.csv')
 
 # Data for calculator
-CalculatorData = pd.read_csv('Airport_Delay_Cost_Data.csv') # Data for Calculator
+CalculatorData = pd.read_csv('FlyBuyData/Airport_Delay_Cost_Data.csv') # Data for Calculator
 
 
 
@@ -484,7 +485,7 @@ elif page == "United States Delay Analysis - 2024 Data":
         # This is done with the AirportCoords dataframe, AirportDeparture dataframe, column 1 is Airport Code, Column 6 is Latitude, Column 7 is Longitude
         # from AirportCoords and want Column 3 for Airport Code (Origin Airport) and Column 4 for Total Departures from AirportDeparture
         # Proved easier and quicker to do outiside of python
-        map_data = pd.read_csv('Merged_Airport_Flight_Data.csv')
+        map_data = pd.read_csv('FlyBuyData/Merged_Airport_Flight_Data.csv')
 
         # Create pydeck map with the merged data
         map_data["radius"] = map_data["Total Departures"] / 1.5 # Adjust if needed
