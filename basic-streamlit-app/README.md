@@ -1,4 +1,4 @@
-# Readme for Basic Streamlit App: Casino Data
+# Readme for Basic Streamlit App: Casino Data ![slot_machine](https://github.com/user-attachments/assets/5f0d50a3-517b-47a4-93d0-c0bf9e3f9a67)
 
 Basic Streamlet App is an application that provides a basic comparison between multiple types of casino revenue between the years 2000 & 2022. The app was created as a way to practice creating user interaction, webpage visuals, and data analysis.
 The user has the ability to define the casino games of choice. At the moment, it includes a dual comparison or a comparison between one game type to all other game types. Along with this, the user can specify the variable in question. Once selected, a graph
