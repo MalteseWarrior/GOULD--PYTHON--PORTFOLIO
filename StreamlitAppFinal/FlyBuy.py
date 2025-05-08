@@ -225,10 +225,12 @@ div[data-testid="stSlider"] input[type="range"]::-moz-range-track {
 
 URL = 'https://opensky-network.org/api/'
 
+# -------- Data graveyard ------- #
 
-
+# A lot of this went unused when merging outside of python proved to be easier with the nature and amount of data sets
 # Sourced from Oepndatasoft: https://www.opendatasoft.com/en/
-AirportCoords = pd.read_csv('FlyBuyData/AirportCodeCoords.csv', sep=';') # Coordinates of Airports by Airport Code United States
+# AirportCoords = pd.read_csv('FlyBuyData/AirportCodeCoords.csv', sep=';') # Coordinates of Airports by Airport Code United States, ended up merging outside python
+# Faster with api
 
 # Need to clean AirportCodes since formatting has the first column as:
 # Airport Code;Airport Name;City Name;Country Name;Country Code;Latitude;Longitude;World Area Code;City Name geo_name_id;Country Name geo_name_id;coordinates
@@ -236,25 +238,28 @@ AirportCoords = pd.read_csv('FlyBuyData/AirportCodeCoords.csv', sep=';') # Coord
 
 
 # Sourced from Bureau of Transportation Statistics: https://www.bts.gov/
-# Will Assist with United States Delay and Cost Analysis
+# Will Assist with United States Delay aand Cost Analysis
 
 # Many of these data files had extra, unnecessary data that could be removed manually once downloading the file
 # I provided links to the organizations the data was sourced from so users can see original data
 
-DelayCauses = pd.read_csv('FlyBuyData/Airline_Delay_Cause.csv') # Airline Delay Causes
+# DelayCauses = pd.read_csv('FlyBuyData/Airline_Delay_Cause.csv') # Airline Delay Causes
+# Faster for community app
 
 # Departure Columns of import are Column 3 for Airport Code (Origin Airport) and Column 4 for Total Departures - Proportional map
 # Depature Columns of impport are column 8 for Total Passengers/Flight, Column 9 for Total Seats/Flight - For Fare Analysis
 
-AirPortDeparture = pd.read_csv('FlyBuyData/Departures_Airport.csv') # Departure Airports
-FareCosts = pd.read_csv('FlyBuyData/AverageFare_Annual_2024.csv') # Average Fare Costs
+# AirPortDeparture = pd.read_csv('FlyBuyData/Departures_Airport.csv') # Departure Airports
+# FareCosts = pd.read_csv('FlyBuyData/AverageFare_Annual_2024.csv') # Average Fare Costs
 
 Fare_Delay = pd.read_csv('FlyBuyData/Fare_Delay_Merge.csv')
 
 # Data for calculator
-CalculatorData = pd.read_csv('FlyBuyData/Airport_Delay_Cost_Data.csv') # Data for Calculator
+# CalculatorData = pd.read_csv('FlyBuyData/Airport_Delay_Cost_Data.csv') # Data for Calculator
 
 
+
+# -------- BEGIN APP ---------# 
 
 # Create Map For Data Associated with Flight
 # This will be done by creating a tab for each analysis type
