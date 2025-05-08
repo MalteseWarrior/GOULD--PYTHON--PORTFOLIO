@@ -1,4 +1,7 @@
-# ✈️ FlyBuy - Real-Time Flight Data & U.S. Airport Analysis 💸🛬
+# ✈️ FlyBuy - Real-Time Flight Data & U.S. Airport Analysis ![flying_airplane](https://github.com/user-attachments/assets/e66000c3-f66f-49f0-8803-e0fb39e5c408)
+
+
+
 
 # Welcome!
 This is a streamlit Python application that allows you to search for flights in real time using the OpenSky API.  
