@@ -1,4 +1,5 @@
-# 🧽 GoofyGoogler: A SpongeBob SquarePants NER App
+# 🧽 GoofyGoogler: A SpongeBob SquarePants NER App ![spongebob (1)](https://github.com/user-attachments/assets/9ff2023e-b210-4fdd-b933-d8518df044dd)
+
 
 This application was developed to learn more about Name Entity Recognition (NER) as part of spaCy’s language model. To do this, a large dataset was created by scraping the internet for SpongeBob SquarePants-related episodes, character names, and dialogue (This is found in the `GoofyScraper.py`). Once this data was collected, it was converted into a csv for easy loading. The actual NER section of the application is simple, as names, episodes, events, and locations are derived from the located transcripts.
 
