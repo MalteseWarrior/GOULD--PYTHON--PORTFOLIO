@@ -24,6 +24,9 @@ to determine annual revenue, despite delays depending on the airport.
 ![image](https://github.com/user-attachments/assets/802e5a4d-54bd-438d-813c-1664c222ddea)
 
 
+----
+
+
 [Slashing Data with Wolverine](https://github.com/MalteseWarrior/GOULD--PYTHON--PORTFOLIO/tree/main/TidyData-Project)
 This project was all about using pandas to restructure (tidy) messy data. I added a fun visualization tool with the help of Wolverine as the user goes through a quick game where they help him put the X-Men's data back together!
 This application in particular expanded my knowledge of how to implement the pandas library (learned a lot from having to display data frames) and of how to create games, visuals, and the like in a python environment (pygame).
@@ -31,11 +34,17 @@ This application in particular expanded my knowledge of how to implement the pan
 ![image](https://github.com/user-attachments/assets/33cc760c-39bf-49b7-99d6-a0e36de6c92c)
 
 
+----
+
+
 [Goofy Googler](https://github.com/MalteseWarrior/GOULD--PYTHON--PORTFOLIO/tree/main/NERStreamlitApp)
 This project is about Name Entity Recognition and some transformer/sentiment analysis practice with a nautical theme! Insert SpongeBob-related text to learn more about those Bikini Bottom Entities!. This is done alongside
 basic sentiment analysis and cosine transformers.
 
 ![image](https://github.com/user-attachments/assets/4e513abe-e8ce-4f0b-95f6-646442b8aa5a)
+
+
+----
 
 
 # Other Additions:
